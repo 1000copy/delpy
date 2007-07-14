@@ -28,6 +28,7 @@ begin
     gDelphiWrapper.Module := gModule;
 
     gEngine.LoadDll;
+
   except
   end;
 end;
