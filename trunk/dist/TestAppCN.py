@@ -24,5 +24,6 @@ def main():
     FreeConsole()
     Application.Run()
 
+
 main()
 
