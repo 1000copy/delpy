@@ -1,0 +1,12 @@
+今天发现最简单的，并且可以支持p4d公开出来的全部vcl类库（具体清单要看源代码）的最小发布：
+
+
+msvcr71.dll 支持库，发布py2.5必须包含
+python25.dll py的核心
+python.exe 类似java.exe ，pyxx.dll的简单封装
+pythonw.exe 同上，用于gui类的 py程序
+Delphi.pyd p4d 公开delphi类库 ，编译来自p4d\module\delphi
+TestApp.py 测试程序，来自在p4d\module\testapp.py
+project1.exe 测试程序，来自在p4d\demo01\project1.dpr
+
+使用pythonw.exe 在有中文的情况下，是无法运行的，因为py代码确实不支持中文，但是project1.exe 是可以的，因此这个包装程序看起来不能直接使用python提供的，而需要采用p4d自己写。这个是一个任务。
