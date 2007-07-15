@@ -6,7 +6,7 @@ uses
   //Forms,
   PythonEngine,
   //PythonGUIInputOutput,
-  classes,
+  classes,Dialogs,
   SysUtils;
 
 {$R *.res}
@@ -17,13 +17,21 @@ var
 
 begin
   PythonEngine1 := TPythonEngine.Create (nil);
+  PythonEngine1.IO :=  TPythonInputOutput.Create(nil);
+  PythonEngine1.IO.RawOutput := True ;
   sl := TStringList.Create ;
   try
     PythonEngine1.LoadDll ;
     sl.LoadFromFile(ParamStr(1));
+    try
     PythonEngine1.ExecStrings( sl);
+    except
+      on e:Exception do
+        ShowMessage(e.message);
+    end;
   finally
     Freeandnil(sl);
+    //FreeAndNil();
     Freeandnil(PythonEngine1);
   end;
 end.
