@@ -4,7 +4,7 @@ class MainForm(Form):
 
     def __init__(self, Owner):
         self.Caption = "A Delphi ÖÐÎÄ´°¿ÚForm..."
-        self.SetBounds(10, 10, 500, 400)
+        self.SetBounds(10, 10, 500, 400) 
         self.lblHello = Label(self)
         self.lblHello.SetProps(Parent=self, Caption="Hello World")
         self.lblHello.SetBounds(20, 10, 300, 24)
