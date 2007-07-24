@@ -9,7 +9,7 @@ MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
 DCC = $(ROOT)\bin\dcc32.exe $**
 BRCC = $(ROOT)\bin\brcc32.exe $**
 #------------------------------------------------------------------------------
-PROJECTS = delpy.exe Delphi
+PROJECTS = delpy.exe Delphi dpoint.exe PythonVCL_d7.bpl Python_d7.bpl
 #------------------------------------------------------------------------------
 default: $(PROJECTS)
 #------------------------------------------------------------------------------
@@ -18,6 +18,15 @@ delpy.exe: delpy\delpy.dpr
   $(DCC)
 
 Delphi: Delphi\Delphi.dpr
+  $(DCC)
+
+dpoint.exe: ..\test\Point\dpoint.dpr
+  $(DCC)
+
+PythonVCL_d7.bpl: ..\..\PythonForDelphi\Components\PythonVCL_d7.dpk
+  $(DCC)
+
+Python_d7.bpl: ..\..\PythonForDelphi\Components\Python_d7.dpk
   $(DCC)
 
 
