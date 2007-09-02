@@ -4,27 +4,37 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls,Registry, DB, DBCtrls, Grids, DBGrids;
+  Dialogs, StdCtrls, ExtCtrls,Registry, DB, DBCtrls, Grids, DBGrids,uWinList,
+  Buttons;
+const cWhoIsAuthor = 'Who is 1000copy?';  
 type
   TForm1 = class(TForm)
     pnl1: TPanel;
     edt1: TEdit;
     ds1: TDataSource;
     dbgrd1: TDBGrid;
-    lbl1: TLabel;
-    lbl2: TLabel;
-    lbl3: TLabel;
+    lblWindows: TLabel;
+    lblProgram: TLabel;
+    lblDirectory: TLabel;
     txt1: TStaticText;
+    lbl4: TLabel;
+    btn1: TSpeedButton;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure edt1Change(Sender: TObject);
     procedure edt1KeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormActivate(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
   private
     IsHide : Boolean ;
+    FFindList:TFindList;
+    FFindType : TFindListType ;
     procedure DelReg;
     procedure Reg;
+    procedure DoFind;
+    procedure OnFindTypeChange;
   public
     procedure WMHotKey(var Msg: TMessage); message WM_HOTKEY;
   end;
@@ -34,7 +44,6 @@ var
 
 implementation
 
-uses uWinList;
 
 {$R *.dfm}
 
@@ -49,14 +58,27 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  i : Integer ;
+  i,len : Integer ;
+  A  : Array [0..255] of char ;
+  B : String ;
+  sl :TStringList ;
 begin
+
+ Visible := true ;
  IsHide := True ;
+ //FormStyle := fsStayOnTop;
+ dbgrd1.Enabled := True ;
+ //BorderStyle := bsNone ;
  RegisterHotKey(handle,1001,MOD_CONTROL ,VK_F12);
- ds1.DataSet := GetAllWindows ;
+ //ds1.DataSet := GetAllDirectory;
 end;
 
-
+procedure TForm1.DoFind;
+begin
+ FFindList := GetFindList(FFindType);
+ ds1.DataSet := FFindList ;
+ txt1.Caption := 'Search '+IntToStr(FFindList.RecordCount)+' items';
+end;
 procedure TForm1.FormShow(Sender: TObject);
 begin
   edt1.SetFocus ;
@@ -108,13 +130,18 @@ end;
 
 procedure TForm1.edt1Change(Sender: TObject);
 begin
-  GetAllWindows.DoFilter(edt1.Text );
+  if edt1.Text = cWhoisAuthor then begin
+  //if edt1.Text = '1000' then begin
+    ds1.DataSet :=GetFindList(fwFor1000copy);
+    //DoFind;
+  end  else
+    GetFindList(FFindType).DoFilter(edt1.Text );
 end;
 
 procedure TForm1.edt1KeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
-  i : Integer ;
+  i ,j: Integer ;
 begin
   //ShowMessage(IntToStr(Key));
   i := 0 ;
@@ -123,34 +150,71 @@ begin
   // 33 pageup
   // 34 pagedown
   // 39 left
-  // 37 right 
+  // 37 right
+  i := 0 ;
   if Key = 40 then
-    AllWindows.Next ;
+    FFindList.Next ;
   if Key = 38 then
-    AllWindows.Prior;
+    FFindList.Prior;
   if Key = 33 then
-    while (not AllWindows.eof) and (i < 10) do begin
-      AllWindows.Prior ;
+    while (not FFindList.bof) and (i < 10) do begin
+      FFindList.Prior ;
       Inc(i);
     end;
   if Key = 34 then
-    while (not AllWindows.eof) and (i < 10) do begin
-      AllWindows.next ;
+    while (not FFindList.eof) and (i < 10) do begin
+      FFindList.next ;
       Inc(i);
     end;
   if key = 27 then
     hide;
-  if key = 39 then
-    lbl2.Font.Style := lbl2.Font.Style+[fsBold];
-  if key = 37 then
-    lbl2.Font.Style := lbl2.Font.Style-[fsBold];
+  if key = 39 then begin
+    j := Integer(FFindType) +1;
+    FFindType := TFindListType(j mod 2);
+    OnFindTypeChange ;
+  end;
+  if key = 37 then begin
+    if Integer(FFindType)= 0 then
+      FFindType := TFindListType(Integer(FFindType)+2) ;
+    j := Integer(FFindType) -1;
+    FFindType := TFindListType(j mod 2);
+    OnFindTypeChange ;
+  end;
   if Key = 13 then begin
     hide ;
-    //ShowWindow(AllWindows.fieldByName('handle').AsInteger, SW_SHOWNORMAL		 );//SW_SHOWNORMAL
-    //SetSysFocus(AllWindows.fieldByName('handle').AsInteger);
-    SetForegroundWindow(AllWindows.fieldByName('handle').AsInteger);
+    //ShowWindow(FindList.fieldByName('handle').AsInteger, SW_SHOWNORMAL		 );//SW_SHOWNORMAL
+    //SetSysFocus(FindList.fieldByName('handle').AsInteger);
+    //SetForegroundWindow(FindList.fieldByName('key').AsInteger);
+    FFindList.DoRun ;
   end;
   Key := 0 ;
+end;
+
+procedure TForm1.OnFindTypeChange;
+begin
+  lblWindows.Font.Style := lblWindows.Font.Style-[fsBold];
+  lblDirectory.Font.Style := lblDirectory.Font.Style-[fsBold];
+  lblProgram.Font.Style := lblProgram.Font.Style-[fsBold];
+  if FFindType = fwFindWindows then
+   lblWindows.Font.Style := lblWindows.Font.Style+[fsBold];
+  if FFindType = fwFindDirectory then
+   lblDirectory.Font.Style := lblDirectory.Font.Style+[fsBold];
+  //if FFindType = fwFindProgram then
+  // lblProgram.Font.Style := lblProgram.Font.Style+[fsBold];
+  //ShowMessage(IntToStr(Integer(FFindType)));
+  DoFind;
+end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+   DoFind ;
+   txt1.Caption := 'Indexed ';
+end;
+
+procedure TForm1.btn1Click(Sender: TObject);
+begin
+  edt1.Text := '';
+  edt1.Text := cWhoIsAuthor;
 end;
 
 end.
