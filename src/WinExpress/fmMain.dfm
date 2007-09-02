@@ -76,9 +76,10 @@ object Form1: TForm1
     end
     object btn1: TSpeedButton
       Left = 336
-      Top = 28
+      Top = 27
       Width = 8
       Height = 8
+      Transparent = False
       OnClick = btn1Click
     end
     object dbgrd1: TDBGrid
@@ -135,11 +136,27 @@ object Form1: TForm1
     end
     object txt1: TStaticText
       Left = 348
-      Top = 22
-      Width = 144
-      Height = 21
-      Caption = #36825#37324#24819#35201#25918#32622#19968#20010#22270#29255
+      Top = 21
+      Width = 54
+      Height = 18
+      Caption = 'Indexed'
+      Color = clAqua
+      ParentColor = False
       TabOrder = 2
+    end
+    object CheckBox1: TCheckBox
+      Left = 247
+      Top = 26
+      Width = 84
+      Height = 10
+      Caption = 'Match exactly'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = 'MS Shell Dlg 2'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 3
     end
   end
   object ds1: TDataSource

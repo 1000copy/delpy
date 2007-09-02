@@ -19,6 +19,7 @@ type
     txt1: TStaticText;
     lbl4: TLabel;
     btn1: TSpeedButton;
+    CheckBox1: TCheckBox;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -135,7 +136,7 @@ begin
     ds1.DataSet :=GetFindList(fwFor1000copy);
     //DoFind;
   end  else
-    GetFindList(FFindType).DoFilter(edt1.Text );
+    GetFindList(FFindType).DoFilter(edt1.Text ,CheckBox1.Checked);
 end;
 
 procedure TForm1.edt1KeyUp(Sender: TObject; var Key: Word;
