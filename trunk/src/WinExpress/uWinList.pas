@@ -7,7 +7,7 @@ type
   //TFindListType = (fwFindDirectory,fwFindWindows,fwFindProgram);
   TFindListType = (fwFindDirectory,fwFindWindows,fwFor1000copy);
   TFindList = class(TClientDataset)
-    procedure DoFilter (S : String);virtual;
+    procedure DoFilter (S : String;Exactly:Boolean = false);virtual;
     procedure CancelFilter (S : String);virtual;
     procedure Fill(Argument:String);virtual;abstract;
     procedure DoRun ;virtual ;abstract ;
@@ -112,7 +112,7 @@ procedure TAllWindows.Fill(Argument: String);
         begin
           cds.Append ;
           cds.FieldByName('key').AsInteger := Handle ;
-          cds.FieldByName('value').AsString := '_'+String( Caption)+'_' ;
+          cds.FieldByName('value').AsString := String( Caption) ;
           cds.Post ;
         end;
         Application.ProcessMessages;
@@ -192,7 +192,7 @@ procedure TAllDirectory.Fill(Argument: String);
       begin
         Dataset.Append;
         Dataset.FieldByName('key').asString := s+sr.name;
-        Dataset.FieldByName('value').asString := '_'+GetLastDir(s+sr.name)+'_';
+        Dataset.FieldByName('value').asString := GetLastDir(s+sr.name);
         Dataset.Post ;
         Application.ProcessMessages;
         FillDir(s+sr.Name+'\',Dataset);
@@ -274,10 +274,13 @@ begin
   Self.Filtered := False;
 end;
 
-procedure TFindList.DoFilter(S: String);
+procedure TFindList.DoFilter(S: String;Exactly:Boolean = false);
 begin
   FilterOptions := [foCaseInsensitive];
-  Filter := 'value like ''%'+S+'%''';
+  if Exactly then
+    Filter := 'value ='''+S+''''
+  else
+    Filter := 'value like ''%'+S+'%''';
   Filtered := True ;
 end;
 
