@@ -15,6 +15,7 @@ object Form1: TForm1
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
+  OnKeyUp = FormKeyUp
   OnShow = FormShow
   PixelsPerInch = 120
   TextHeight = 17
@@ -138,7 +139,7 @@ object Form1: TForm1
       Left = 348
       Top = 21
       Width = 54
-      Height = 18
+      Height = 21
       Caption = 'Indexed'
       Color = clAqua
       ParentColor = False

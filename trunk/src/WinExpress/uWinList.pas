@@ -1,12 +1,16 @@
 unit uWinList;
 
 interface
-uses Classes ,windows,SysUtils,DBClient,DB,Dialogs ,ShellAPI,Forms;
+uses Classes ,windows,SysUtils,DBClient,DB,Dialogs ,ShellAPI,Forms,IMCode;
 
 type
   //TFindListType = (fwFindDirectory,fwFindWindows,fwFindProgram);
   TFindListType = (fwFindDirectory,fwFindWindows,fwFor1000copy);
   TFindList = class(TClientDataset)
+  protected 
+    procedure Init ;virtual;
+  public
+    constructor Create (O : TComponent);override ;
     procedure DoFilter (S : String;Exactly:Boolean = false);virtual;
     procedure CancelFilter (S : String);virtual;
     procedure Fill(Argument:String);virtual;abstract;
@@ -24,21 +28,30 @@ type
     procedure Fill(Argument:String);override;
     procedure DoRun ;override ;
   end;
+  TFindListFactory = class
+  private
+    AllWindows : TFindList ;
+    AllDirectory: TFindList ;
+    For1000copy: TFindList;
+    function GetFor1000copy: TFindList;
+  public
+   constructor Create;reintroduce ;
+   destructor Destroy ;override ;
+   function GetFindList(Value : TFindListType): TFindList;
+  end;
 
-function GetFindList(Value : TFindListType): TFindList;
 
 implementation
-var
-  AllWindows : TFindList ;
-  AllDirectory: TFindList ;
-  For1000copy: TFor1000copy;
+
 { TAllWindows }
-function GetFor1000copy:TFindList;
+function TFindListFactory.GetFor1000copy:TFindList;
 var
   F:TField;
 begin
  if not Assigned(For1000copy) then begin
+
     For1000copy := TFor1000copy.Create (nil);
+    {
     F := TStringField.Create(nil);
     F.Size := 255 ;
     F.FieldName := 'key';
@@ -48,6 +61,7 @@ begin
     F.Size := 255 ;
     F.DataSet := For1000copy ;
     For1000copy.CreateDataSet ;
+    }
     For1000copy.Append;
     For1000copy.FieldByName('key').asString := 'Name';
     For1000copy.FieldByName('value').asString := 'Liu Chuanjun';
@@ -62,23 +76,6 @@ begin
     For1000copy.Post ;
  end;
  Result := For1000copy ;
-end;
-function GetAllWindows: TFindList;
-var
-  F:TField;
-begin
- if not Assigned(AllWindows) then begin
-   AllWindows := TAllWindows.Create (nil);
-   F := TIntegerField.Create(nil);
-   F.FieldName := 'key';
-   F.DataSet := AllWindows ;
-   F := TStringField.Create(nil);
-   F.FieldName := 'value';
-   F.DataSet := AllWindows ;
-   AllWindows.CreateDataSet ;
-   AllWindows.Fill('');
- end;                  
- Result := AllWindows;
 end;
 
 
@@ -146,7 +143,29 @@ begin
   }
 
 end;
-
+function GetFixDisk:string ;
+var
+  i,len : Integer ;
+  A  : Array [0..255] of char ;
+  B : String ;
+  sl :TStringList ;
+begin
+ FillChar(A,255,#0);
+ len := GetLogicalDriveStrings(255,A);
+ sl := TStringList.Create ;
+ try
+   for I := 0 to len -1 do
+     if A[I] = #0 then begin
+       if (b <> '') and (GetDriveType(PChar(b)) = DRIVE_FIXED) then
+          sl.Add(b);
+       b := '';
+     end else
+       b := b + A[I] ;
+   Result := sl.CommaText ;
+ finally
+   sl.Free ;
+ end;
+end;
 procedure TAllDirectory.Fill(Argument: String);
   procedure DeleteLastChar(var S:string);
   begin
@@ -192,7 +211,7 @@ procedure TAllDirectory.Fill(Argument: String);
       begin
         Dataset.Append;
         Dataset.FieldByName('key').asString := s+sr.name;
-        Dataset.FieldByName('value').asString := GetLastDir(s+sr.name);
+        Dataset.FieldByName('value').asString := getPyString(GetLastDir(s+sr.name));
         Dataset.Post ;
         Application.ProcessMessages;
         FillDir(s+sr.Name+'\',Dataset);
@@ -201,68 +220,56 @@ procedure TAllDirectory.Fill(Argument: String);
     SysUtils.FindClose(sr);
     Dataset.First; 
   end;
-begin
-   FillDir(Argument,Self);
-end;
-function GetAllDirectory:TFindList;
 var
-  F : TField ;
-  function GetFixDisk:string ;
-  var
-    i,len : Integer ;
-    A  : Array [0..255] of char ;
-    B : String ;
-    sl :TStringList ;
-  begin
-   FillChar(A,255,#0);
-   len := GetLogicalDriveStrings(255,A);
-   sl := TStringList.Create ;
-   try
-     for I := 0 to len -1 do
-       if A[I] = #0 then begin
-         if (b <> '') and (GetDriveType(PChar(b)) = DRIVE_FIXED) then
-            sl.Add(b);
-         b := '';
-       end else
-         b := b + A[I] ;
-     Result := sl.CommaText ;
-   finally
-     sl.Free ;
-   end;
-  end;
-var
-  sl :TStringList ;
-  i: Integer ;
+   sl :TStringList;
+   i : Integer ;
 begin
-  if not Assigned(AllDirectory) then begin
-   AllDirectory := TAllDirectory.Create (nil);
-   F := TStringField.Create(nil);
-   F.Size := 255 ;
-   F.FieldName := 'key';
-   F.DataSet := AllDirectory ;
-   F := TStringField.Create(nil);
-   F.FieldName := 'value';
-   F.Size := 255 ;
-   F.DataSet := AllDirectory ;
-   AllDirectory.CreateDataSet ;
    sl := TStringList.Create ;
    try
      sl.CommaText := GetFixDisk;
-     //sl.CommaText := 'F:\'; just for test
+     //sl.CommaText := 'F:\'; //just for test
      for i := 0 to sl.Count -1 do
-        AllDirectory.Fill(sl.Strings[i]);
+        FillDir(sl.Strings[i],Self);
    finally
      sl.Free ;
    end;
- end;
- Result := AllDirectory;
 end;
-function GetFindList(Value : TFindListType): TFindList;
+
+
+constructor TFindListFactory.Create;
 begin
-  if Value = fwFindWindows then
-    Result := GetAllWindows
-  else  if Value = fwFindDirectory then
-    Result := GetAllDirectory
+  inherited;
+  AllWindows := nil ;
+  AllDirectory:= nil ;
+  For1000copy := nil ;
+end;
+
+destructor TFindListFactory.Destroy;
+begin
+  FreeAndNil(AllWindows);
+  FreeAndNil(AllDirectory);
+  FreeAndNil(For1000copy);
+  inherited;
+end;
+
+
+
+function TFindListFactory.GetFindList(Value : TFindListType): TFindList;
+begin
+  if Value = fwFindWindows then begin
+     if not Assigned(AllWindows) then begin
+       AllWindows := TAllWindows.Create (nil);
+       AllWindows.Fill('');
+     end;
+     Result := AllWindows;
+  end
+  else  if Value = fwFindDirectory then  begin
+   if not Assigned(AllDirectory) then begin
+     AllDirectory := TAllDirectory.Create (nil);
+     AllDirectory.Fill('');
+   end;
+   Result := AllDirectory;
+  end
   else   if Value = fwFor1000copy then
     //ShowMessage('not yet implement!');
     Result := GetFor1000copy;
@@ -274,6 +281,12 @@ begin
   Self.Filtered := False;
 end;
 
+constructor TFindList.Create(O: TComponent);
+begin
+  inherited;
+  Init ;
+end;
+
 procedure TFindList.DoFilter(S: String;Exactly:Boolean = false);
 begin
   FilterOptions := [foCaseInsensitive];
@@ -282,6 +295,21 @@ begin
   else
     Filter := 'value like ''%'+S+'%''';
   Filtered := True ;
+end;
+
+procedure TFindList.Init;
+var
+  F :TStringField ;
+begin
+   F := TStringField.Create(nil);
+   F.Size := 255 ;
+   F.FieldName := 'key';
+   F.DataSet := Self ;
+   F := TStringField.Create(nil);
+   F.FieldName := 'value';
+   F.Size := 255 ;
+   F.DataSet := Self ;
+   CreateDataSet ;  
 end;
 
 { TFor1000copy }
