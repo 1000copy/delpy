@@ -2,6 +2,7 @@ program WindowsExpress;
 
 uses
   Forms,
+  MidasLib,
   fmMain in 'fmMain.pas' {Form1},
   uWinList in 'uWinList.pas';
 
