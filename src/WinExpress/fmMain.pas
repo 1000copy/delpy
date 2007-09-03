@@ -20,6 +20,8 @@ type
     lbl4: TLabel;
     btn1: TSpeedButton;
     CheckBox1: TCheckBox;
+    lbl1: TLabel;
+    mmo1: TMemo;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -30,6 +32,8 @@ type
     procedure btn1Click(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure lbl1MouseEnter(Sender: TObject);
+    procedure lbl1MouseLeave(Sender: TObject);
   private
     IsHide : Boolean ;
     FFindList:TFindList;
@@ -64,6 +68,7 @@ var
   B : String ;
   sl :TStringList ;
 begin
+ Application.ShowHint := True;
  KeyPreview := true ;
  IsHide := True ;
  //FormStyle := fsStayOnTop;
@@ -229,6 +234,24 @@ begin
     FFindList.DoRun ;
   end;
   Key := 0 ;
+end;
+
+procedure TForm1.lbl1MouseEnter(Sender: TObject);
+var
+  i ,h,w: integer;
+begin
+  h := mmo1.Height ;
+  mmo1.Height := 0 ;
+  mmo1.Visible := true ;
+  for i := 0 to h div 10 do begin
+     Sleep(30);
+     mmo1.Height :=  10*i ;
+  end;
+end;
+
+procedure TForm1.lbl1MouseLeave(Sender: TObject);
+begin
+  mmo1.Visible := False ;
 end;
 
 end.
