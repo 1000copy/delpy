@@ -28,10 +28,13 @@ type
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
     procedure btn1Click(Sender: TObject);
+    procedure FormKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     IsHide : Boolean ;
     FFindList:TFindList;
     FFindType : TFindListType ;
+    FFindListFactory : TFindListFactory ;
     procedure DelReg;
     procedure Reg;
     procedure DoFind;
@@ -48,12 +51,9 @@ implementation
 
 {$R *.dfm}
 
-
-
-
-
 procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+  FFindListFactory.Free ;
   UnRegisterHotKey(handle,1001);
 end;
 
@@ -64,19 +64,22 @@ var
   B : String ;
   sl :TStringList ;
 begin
-
- Visible := true ;
+ KeyPreview := true ;
  IsHide := True ;
  //FormStyle := fsStayOnTop;
  dbgrd1.Enabled := True ;
+ dbgrd1.Options := dbgrd1.Options + [dgTitles] ;
  //BorderStyle := bsNone ;
  RegisterHotKey(handle,1001,MOD_CONTROL ,VK_F12);
  //ds1.DataSet := GetAllDirectory;
+ FFindListFactory := TFindListFactory.Create ;
+ Visible := true ;
+ 
 end;
 
 procedure TForm1.DoFind;
-begin
- FFindList := GetFindList(FFindType);
+begin                          
+ FFindList := FFindListFactory.GetFindList(FFindType);
  ds1.DataSet := FFindList ;
  txt1.Caption := 'Search '+IntToStr(FFindList.RecordCount)+' items';
 end;
@@ -133,10 +136,10 @@ procedure TForm1.edt1Change(Sender: TObject);
 begin
   if edt1.Text = cWhoisAuthor then begin
   //if edt1.Text = '1000' then begin
-    ds1.DataSet :=GetFindList(fwFor1000copy);
+    ds1.DataSet :=FFindListFactory.GetFindList(fwFor1000copy);
     //DoFind;
   end  else
-    GetFindList(FFindType).DoFilter(edt1.Text ,CheckBox1.Checked);
+    FFindListFactory.GetFindList(FFindType).DoFilter(edt1.Text ,CheckBox1.Checked);
 end;
 
 procedure TForm1.edt1KeyUp(Sender: TObject; var Key: Word;
@@ -145,6 +148,43 @@ var
   i ,j: Integer ;
 begin
   //ShowMessage(IntToStr(Key));
+{}
+end;
+
+procedure TForm1.OnFindTypeChange;
+begin
+  lblWindows.Font.Style := lblWindows.Font.Style-[fsBold];
+  lblDirectory.Font.Style := lblDirectory.Font.Style-[fsBold];
+  lblProgram.Font.Style := lblProgram.Font.Style-[fsBold];
+  if FFindType = fwFindWindows then
+   lblWindows.Font.Style := lblWindows.Font.Style+[fsBold];
+  if FFindType = fwFindDirectory then
+   lblDirectory.Font.Style := lblDirectory.Font.Style+[fsBold];
+  //if FFindType = fwFindProgram then
+  // lblProgram.Font.Style := lblProgram.Font.Style+[fsBold];
+  //ShowMessage(IntToStr(Integer(FFindType)));
+  DoFind;
+end;
+
+procedure TForm1.FormActivate(Sender: TObject);
+begin
+   DoFind ;
+   txt1.Caption := 'Indexed ';
+end;
+
+procedure TForm1.btn1Click(Sender: TObject);
+begin
+  edt1.Text := '';
+  edt1.Text := cWhoIsAuthor;
+end;
+
+procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  i ,j: Integer ;
+
+
+begin
   i := 0 ;
   // 40 down
   // 38 up
@@ -189,33 +229,6 @@ begin
     FFindList.DoRun ;
   end;
   Key := 0 ;
-end;
-
-procedure TForm1.OnFindTypeChange;
-begin
-  lblWindows.Font.Style := lblWindows.Font.Style-[fsBold];
-  lblDirectory.Font.Style := lblDirectory.Font.Style-[fsBold];
-  lblProgram.Font.Style := lblProgram.Font.Style-[fsBold];
-  if FFindType = fwFindWindows then
-   lblWindows.Font.Style := lblWindows.Font.Style+[fsBold];
-  if FFindType = fwFindDirectory then
-   lblDirectory.Font.Style := lblDirectory.Font.Style+[fsBold];
-  //if FFindType = fwFindProgram then
-  // lblProgram.Font.Style := lblProgram.Font.Style+[fsBold];
-  //ShowMessage(IntToStr(Integer(FFindType)));
-  DoFind;
-end;
-
-procedure TForm1.FormActivate(Sender: TObject);
-begin
-   DoFind ;
-   txt1.Caption := 'Indexed ';
-end;
-
-procedure TForm1.btn1Click(Sender: TObject);
-begin
-  edt1.Text := '';
-  edt1.Text := cWhoIsAuthor;
 end;
 
 end.
