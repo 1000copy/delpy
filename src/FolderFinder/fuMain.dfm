@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 328
   Width = 707
   Height = 394
-  Caption = 'Folder Finder'
+  Caption = 'E:\codestock\delpy\src\FolderFinder'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
