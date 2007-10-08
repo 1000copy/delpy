@@ -1,11 +1,12 @@
 unit uWinList;
 
 interface
-uses Classes ,windows,SysUtils,DBClient,DB,Dialogs ,ShellAPI,Forms,IMCode;
+uses Classes ,windows,SysUtils,DBClient,DB,Dialogs ,ShellAPI,Forms,IMCode,uFolder;
 
 type
   TResultDataset = class(TClientDataset)
   private
+    procedure MergeFrom(Src: TClientDataset);
   protected
     procedure Init ;virtual;
   public
@@ -31,25 +32,33 @@ type
     procedure Execute; override;
     property cds :TClientDataSet  read Fcds write Setcds;
     property RootFolder :String  read FRootFolder write SetRootFolder;
+    destructor Destroy ;override ;
   public
   end;
 function GetFixDisk:string ;
-function IndexAll : TResultDataset;
+type
+  TIndexer =class
+    class function IndexAll : TResultDataset;
+  end;
 implementation
 
 { TAllWindows }
-procedure MergeInto(Src,Dst:TClientDataset);
+procedure TResultDataset.MergeFrom(Src:TClientDataset);
+var
+  i : integer;
+  Dst:TClientDataset;
 begin
    Src.First ;
+   Dst := Self;
    while not Src.eof do begin
      Dst.Append;
-     Dst.Fields[0].Asstring := Src.Fields[0].Asstring ;
-     Dst.Fields[1].Asstring := Src.Fields[1].Asstring ;
+     for i :=0 to Dst.Fields.Count -1 do
+      Dst.Fields[i].Asstring := Src.Fields[i].Asstring ;
      Dst.Post ;
      Src.Next ;
    end;
 end;
-function IndexAll : TResultDataset;
+class function TIndexer.IndexAll : TResultDataset;
 var
   IndexThread:array of TIndexThread;
   sl : TStringList ;
@@ -57,8 +66,7 @@ var
 begin
    sl := TStringList.Create ;
    try
-     sl.CommaText := GetFixDisk;
-     //sl.CommaText := 'E:\codestock\delpy\src\,E:\codestock\delpy\test\';
+     TFolder.GetLevel1Sons(sl);
      SetLength(IndexThread,sl.Count);
      for i := 0 to sl.Count -1 do begin
         IndexThread[i] := TIndexThread.Create(true);
@@ -69,15 +77,12 @@ begin
      end;
      for i := 0 to sl.Count -1 do
        IndexThread[i].WaitFor ;
-     //for i := 0 to sl.Count -1 do
-       //ShowMessage(IntToStr(IndexThread[i].cds.RecordCount));
      Result := TResultDataset.Create (nil);
      if sl.count >=1 then begin
-       IndexThread[0].cds.first ;
        for i := 0 to sl.count -1 do begin
-         MergeInto(IndexThread[i].cds,Result);
+         Result.MergeFrom(IndexThread[i].cds);
+         //ShowMessage(IntToStr(IndexThread[i].cds.RecordCount));
        end;
-       //ShowMessage(IntToStr(Result.RecordCount));
      end;
      Result.First ;      
    finally
@@ -125,6 +130,11 @@ procedure TIndexThread.FillDir(s:String;var Dataset :TClientDataSet);
 var
   temPath:String;
   sr:TSearchRec;
+  function EnsureSlash(a:string):String;
+  begin
+     if a[Length(a)]<>'\' then
+       result := a+'\';
+  end;
 begin
   temPath:=s+'\*.*';
   if SysUtils.FindFirst(temPath,faAnyFile,sr)=0 then
@@ -139,12 +149,13 @@ begin
     then
     begin
       Dataset.Append;
-      Dataset.FieldByName('key').asString := s+sr.name;
+      Dataset.FieldByName('key').asString := s+'\'+sr.name;
       //Dataset.FieldByName('value').asString := getPyString(GetLastDir(s+sr.name));
       Dataset.FieldByName('value').asString := getPyString(s+sr.name);
       Dataset.Post ;
       Application.ProcessMessages;
-      FillDir(s+sr.Name+'\',Dataset);
+      FillDir(s+'\'+sr.Name,Dataset);
+      //FillDir(EnsureSlash(s)+sr.Name+'\',Dataset);
     end;
   until SysUtils.FindNext(sr)<>0 ;
   SysUtils.FindClose(sr);
@@ -231,6 +242,14 @@ end;
 procedure TIndexThread.SetRootFolder(const Value: String);
 begin
   FRootFolder := Value;
+end;
+
+
+destructor TIndexThread.Destroy;
+begin
+  if Assigned(Fcds)then
+    Fcds.Free ;
+  inherited;
 end;
 
 

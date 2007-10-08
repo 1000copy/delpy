@@ -78,7 +78,7 @@ object Form1: TForm1
       Top = 12
       Width = 75
       Height = 25
-      Caption = '&Run'
+      Caption = '&Go'
       TabOrder = 3
       OnClick = btnRunClick
     end

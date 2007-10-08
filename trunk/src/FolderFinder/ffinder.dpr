@@ -2,6 +2,7 @@ program ffinder;
 
 uses
   Forms,
+  MidasLib,
   fuMain in 'fuMain.pas' {Form1},
   uWinList in 'uWinList.pas';
 
