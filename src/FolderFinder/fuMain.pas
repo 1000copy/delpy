@@ -42,7 +42,7 @@ procedure TForm1.btnReindexClick(Sender: TObject);
 begin
   if Assigned(ds1.DataSet) then
     ds1.Dataset.Free;
-  Frds := IndexAll ;
+  Frds := TIndexer.IndexAll ;
   ds1.Dataset :=  Frds;
   self.stat1.SimplePanel := true;
   self.stat1.SimpleText := 'It is ok.' +IntToStr(Frds.RecordCount)+' items Indexed. ';
