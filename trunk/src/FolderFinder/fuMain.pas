@@ -90,6 +90,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   RegisterHotKey(handle,1001,MOD_CONTROL ,VK_F12);
+  btnReindexClick(nil)
 end;
 
 procedure TForm1.WMHotKey(var Msg: TMessage);
