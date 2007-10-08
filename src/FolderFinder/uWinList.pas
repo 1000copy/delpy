@@ -151,7 +151,7 @@ begin
       Dataset.Append;
       Dataset.FieldByName('key').asString := s+'\'+sr.name;
       //Dataset.FieldByName('value').asString := getPyString(GetLastDir(s+sr.name));
-      Dataset.FieldByName('value').asString := getPyString(s+sr.name);
+      Dataset.FieldByName('value').asString := getPyString(Dataset.FieldByName('key').asString);
       Dataset.Post ;
       Application.ProcessMessages;
       FillDir(s+'\'+sr.Name,Dataset);
