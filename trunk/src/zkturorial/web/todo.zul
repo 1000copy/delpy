@@ -1,0 +1,86 @@
+<window title="To do list" width="640px" border="normal">
+	<zscript>
+		import org.zkforge.todo.event.Event;
+		import org.zkforge.todo.event.EventDAO; 
+		import java.util.ArrayList; 
+		import java.text.SimpleDateFormat; 
+		import java.util.UUID;
+
+		//fetch all events from database 
+		EventDAO evtdao = new EventDAO(); 
+		List allEvents = evtdao.findAll();
+
+		void add(){ 
+		//insert into database 
+		Event newEvt = new Event(UUID.randomUUID().toString(),
+		  name.value,priority.value.intValue(),date.value);
+		evtdao.insert(newEvt);
+
+		//synchronized data with database 
+		allEvents = evtdao.findAll();
+
+		//insert a listEvent into the listbox 
+		Listitem li = new Listitem(); 
+		li.setValue(newEvt); 
+		li.appendChild(new Listcell(name.value)); 
+		li.appendChild(new Listcell(priority.value.toString())); 
+		li.appendChild(new Listcell(new SimpleDateFormat("yyyy-MM-dd").format(date.value)));
+		box.appendChild(li);
+		}
+		
+		void update(){
+		//update database
+		Event editEvt = (Event)box.selectedItem.value;
+		editEvt.setName(name.value);
+		editEvt.setPriority(priority.value);
+		editEvt.setDate(date.value);
+		  evtdao.update(editEvt);
+		
+		//update listbox
+		List children = box.selectedItem.children;
+		((Listcell)children.get(0)).label = name.value;
+		((Listcell)children.get(1)).label = priority.value.toString();
+		((Listcell)children.get(2)).label = new SimpleDateFormat("yyyy-MM-dd").format(date.value);
+		} 
+		
+		void delete(){
+		evtdao.delete((Event)box.selectedItem.value);
+		box.removeItemAt(box.getSelectedIndex());
+		cleargb();
+
+		}
+		void move(){
+		name.value = ((Event)box.selectedItem.value).getName();
+		priority.value = ((Event)box.selectedItem.value).getPriority();
+		date.value = ((Event)box.selectedItem.value).getDate();
+		}
+		
+		void cleargb(){
+		name.value = null;
+		priority.value = null;
+		date.value = null;
+		}
+	</zscript>
+	<listbox id="box" multiple="true" rows="4"
+		onSelect="move()">
+		<listhead>
+			<listheader label="Item" />
+			<listheader label="Priority" width="50px" />
+			<listheader label="Date" width="90px" />
+		</listhead>
+		<listitem forEach="${allEvents}" value="${each}">
+			<listcell label="${each.name}" />
+			<listcell label="${each.priority}" />
+			<listcell label="${each.date}" />
+		</listitem>
+	</listbox>
+	<groupbox>
+		<caption label="Event" />
+		Item: <textbox id="name" cols="25" />
+		Priority: <intbox id="priority" cols="1" />
+		Date: <datebox id="date" cols="8" />
+		<button label="Add" width="36px" height="24px" onClick="add()" />
+		<button label="Update" width="46px" height="24px" onClick="update()" />
+		<button label="Delete" width="46px" height="24px" onClick="delete()" />
+	</groupbox>
+</window>
