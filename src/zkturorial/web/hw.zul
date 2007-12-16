@@ -1,3 +1,4 @@
-<window title="Hello" border="normal">
+<window title="Hello" border="normal" use="ABCClass">
    Hello World!
+   <button label="ahdkd" forward="onClick"/>
 </window>
