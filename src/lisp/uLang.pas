@@ -147,7 +147,7 @@ type
 /////////////
 procedure output(S:String);
 implementation
-uses uMain,uString ,uNet ,uDb;
+uses uString ,uNet ,uDb;
 var
   FLispLang : TLispLang ;
   fIndent : Integer  ;TestIP:ILispPackage;
