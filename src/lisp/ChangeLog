@@ -1,0 +1,57 @@
+2005-11-16	cvsadmin
+	* uDb.pas 1.2:
+	* uLang.pas 1.2:
+	* uMain.pas 1.2:
+	* uNet.pas 1.2:
+	* uString.pas 1.2:
+	* ulangException.pas 1.2:
+		2005年11月16日 Register/Call 方式 OK
+		  所有外挂对象必须实现接口CallFunction(fnName:String;TLispList;):TLispNode ;
+		  外挂对象调用TLispLang.RegisterFunctions (ExternalObject : TObject;functionNames:array of string ),以便TLispLang 派发函数调用到ExternalObject
+
+2005-11-15	cvsadmin
+	* createtable.txt 1.1.1.1:
+	* lisp.cfg 1.1.1.1:
+	* lisp.dof 1.1.1.1:
+	* lisp.dpr 1.1.1.1:
+	* lisp.res 1.1.1.1:
+	* liusp.cfg 1.1.1.1:
+	* liusp.dof 1.1.1.1:
+	* liusp.dpr 1.1.1.1:
+	* odbc/Odbc.dcu 1.1.1.1:
+	* odbc/Odbc.pas 1.1.1.1:
+	* odbc/Project1.cfg 1.1.1.1:
+	* odbc/Project1.dof 1.1.1.1:
+	* odbc/Project1.dpr 1.1.1.1:
+	* odbc/Project1.exe 1.1.1.1:
+	* odbc/Project1.res 1.1.1.1:
+	* odbc/Unit1.dcu 1.1.1.1:
+	* odbc/Unit1.ddp 1.1.1.1:
+	* odbc/Unit1.dfm 1.1.1.1:
+	* odbc/Unit1.pas 1.1.1.1:
+	* parser.cfg 1.1.1.1:
+	* parser.dof 1.1.1.1:
+	* parser.res 1.1.1.1:
+	* test.lsp 1.1.1.1:
+	* test1.lsp 1.1.1.1:
+	* thelisp.txt 1.1.1.1:
+	* tiger.ico 1.1.1.1:
+	* uDb.dcu 1.1.1.1:
+	* uDb.pas 1.1.1.1:
+	* uLang.dcu 1.1.1.1:
+	* uLang.pas 1.1.1.1:
+	* uMain.dcu 1.1.1.1:
+	* uMain.ddp 1.1.1.1:
+	* uMain.dfm 1.1.1.1:
+	* uMain.pas 1.1.1.1:
+	* uNet.dcu 1.1.1.1:
+	* uNet.pas 1.1.1.1:
+	* uParser.dcu 1.1.1.1:
+	* uParser.pas 1.1.1.1:
+	* uString.dcu 1.1.1.1:
+	* uString.pas 1.1.1.1:
+	* ulangException.dcu 1.1.1.1:
+	* ulangException.pas 1.1.1.1:
+	* ver.txt 1.1.1.1:
+		1st
+

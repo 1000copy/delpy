@@ -1,0 +1,10 @@
+'(setq c (quote a 1) )
+'(repeat 6.2 (print "hello world"))
+'(if true (print "a")(print "b"))
+'(if true (do (print "a")(print "b")) (print "c"))
+'(constr "a" "+b")
+'(downfile "www.163.com" "/" "c:\ff.htm")
+'(setq a (nth (load "D:\testbed\lisp\ver.txt") 1))
+'(print a)
+'(if (eq (nth a 1) 2 ) (print "yes")(print "no"))
+'--++
