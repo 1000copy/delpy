@@ -1,0 +1,7 @@
+(2 
+  "sanrex.51.net"  ' site
+  "/"             ' dir 
+  ("nve.pdf" "")      ' fileset 
+  ""          'target dir
+  ("nve.pdf" "f2.htm") 'target file
+)
