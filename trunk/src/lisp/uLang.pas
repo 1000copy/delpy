@@ -137,7 +137,7 @@ type
    constructor Create ;
    destructor Destroy;override ;
    function  EvalFile (FileName : String):TLispList;
-   function  EvalStr (ListStr : String):TLispList ;
+   function  EvalStr (ListStr : String):TLispNode ;
    property StdOut : TStrings read FStdOut write FStdOut;
    procedure RegisterPackage(I:ILispPackage);
    procedure returnlistPrint ;
@@ -168,9 +168,9 @@ procedure output(S:String);
 begin
   LispLang.put(s);
   // Is Console Application
-  if Application.MainForm = nil then
+  //if Application.MainForm = nil then
   //if pos('liusp.exe', .ExeName) > 0 then
-    Write (s) ;
+  //  Write (s) ;
 end;
 procedure TLispLang.put (s : string);
 begin
@@ -1216,7 +1216,7 @@ begin
   end;       
 end;
 
-function  TLispLang.EvalStr (ListStr : String):TLispList ;
+function  TLispLang.EvalStr (ListStr : String):TLispNode ;
 var
   MS : TStringStream ;
 var
@@ -1234,7 +1234,7 @@ begin
   // change 2004/11/11
   iLoad(Ms);
   //NodeList := byLoad(s) ;
-  self.lEvaluate ;
+  Result := self.lEvaluate ;
   except
     on E : ElispTokenNotInit do
       output(e.Message);

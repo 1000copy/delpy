@@ -82,7 +82,7 @@ UnsafeCast=0
 [Linker]
 MapFile=0
 OutputObjs=0
-ConsoleApp=1
+ConsoleApp=0
 DebugInfo=0
 RemoteSymbols=0
 MinStackSize=16384
@@ -94,13 +94,13 @@ OutputDir=c:\dcu
 UnitOutputDir=c:\dcu
 PackageDLLOutputDir=c:\dcu
 PackageDCPOutputDir=c:\dcu
-SearchPath=c:\dcu
+SearchPath=
 Packages=vcl;rtl;vclx;dbrtl;vcldb;dbexpress;bdertl;vclactnband
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
 [Parameters]
-RunParams=-l (repeat )
+RunParams=-l (print 1)
 HostApplication=
 Launcher=
 UseLauncher=0
@@ -139,20 +139,4 @@ Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
 Count=1
-Item0=c:\dcu
-[HistoryLists\hlUnitOutputDirectory]
-Count=2
-Item0=c:\dcu
-Item1=build
-[HistoryLists\hlOutputDirectorry]
-Count=2
-Item0=c:\dcu
-Item1=build
-[HistoryLists\hlBPLOutput]
-Count=2
-Item0=c:\dcu
-Item1=build
-[HistoryLists\hlDCPOutput]
-Count=2
-Item0=c:\dcu
-Item1=build
+Item0=..

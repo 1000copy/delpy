@@ -1,6 +1,5 @@
 program liusp;
 
-{$APPTYPE CONSOLE}
 {changelog
   OK 2004/11/11 基于cmdline的漂亮的格式化打印 Print Beauty !
   修改lisplang.iprint,lispnode.iprint,lisplist.iprint 以便更好的格式化打印。非常漂亮
