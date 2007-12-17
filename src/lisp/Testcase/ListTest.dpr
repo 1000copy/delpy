@@ -1,13 +1,20 @@
-program ListTest;
-uses  TestFramework,
+
+{$IFDEF LINUX}
+{$DEFINE DUNIT_CLX}
+{$ENDIF}
+program ListTest;
+
+uses
+  TestFramework,
+{$IFDEF DUNIT_CLX}
+  QGUITestRunner,
+{$ELSE}
   GUITestRunner,
-  TextTestRunner,
-  TListTestCase1 in 'TListTestCase1.pas',
-  tcLang in 'tcLang.pas';
+{$ENDIF}
+  TListTestCase in 'TListTestCase.pas';
 
-{$R *.res}
-
-begin
-  TGUITestRunner.runRegisteredTests;  //TextTestRunner.runRegisteredTests;
+{$R *.res}
 
-end.
+begin
+  TGUITestRunner.runRegisteredTests;
+end.

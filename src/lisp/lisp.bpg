@@ -9,7 +9,7 @@ MAKE = $(ROOT)\bin\make.exe -$(MAKEFLAGS) -f$**
 DCC = $(ROOT)\bin\dcc32.exe $**
 BRCC = $(ROOT)\bin\brcc32.exe $**
 #------------------------------------------------------------------------------
-PROJECTS = liusp.exe ListTest.exe dunit.exe
+PROJECTS = liusp.exe ListTest.exe
 #------------------------------------------------------------------------------
 default: $(PROJECTS)
 #------------------------------------------------------------------------------
@@ -18,9 +18,6 @@ liusp.exe: liusp.dpr
   $(DCC)
 
 ListTest.exe: Testcase\ListTest.dpr
-  $(DCC)
-
-dunit.exe: ..\dunit\dunit.dpr
   $(DCC)
 
 
