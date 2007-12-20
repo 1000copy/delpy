@@ -15,6 +15,7 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
+    procedure TestBugCallAFunctionThatNotExists;
     procedure TestQuote;
     procedure TestQuote1;
     procedure testAdd;
@@ -44,6 +45,16 @@ begin
   n := LispLang.EvalStr('(quote 2)');
   Check (n.isInt = true,'Not Success');
   n := LispLang.EvalStr('(quote (2))');
+  Check (n.isList = true,'Not Success');
+  n := LispLang.EvalStr('(setq1 a 1)');
+  Check (n.isList = true,'Not Success');
+end;
+
+procedure TTestCaseList.TestBugCallAFunctionThatNotExists;
+var
+  n : TLispNode ;
+begin
+  n := LispLang.EvalStr('(setq1 a 1)');
   Check (n.isList = true,'Not Success');
 end;
 procedure TTestCaseList.TestQuote1;

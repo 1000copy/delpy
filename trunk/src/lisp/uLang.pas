@@ -169,7 +169,7 @@ begin
   LispLang.put(s);
   //Is Console Application
   if Application.MainForm = nil then
-  if pos('liusp.exe', .ExeName) > 0 then
+  //if pos('liusp.exe', .ExeName) > 0 then
     Write (s) ;
 end;
 procedure TLispLang.put (s : string);
