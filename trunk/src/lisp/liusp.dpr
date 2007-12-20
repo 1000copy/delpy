@@ -29,12 +29,13 @@ var
   i : Integer ;
   ListStr : String ;
 begin
-  { TODO -oUser -cConsole Main : Insert code here }
+  {
   if ParamCount < 2 then
   begin
     Usage ;
     exit ;
   end;
+  }
   ListStr := '';
   //LispLang := TLispLang.create;
   try
@@ -47,7 +48,10 @@ begin
       LispLang.EvalStr(ListStr);
     end else if ParamStr(1)='-v' then  begin
       Usage
-    end;;
+    end else while true do begin
+      Write('lisp console>>>');
+      ReadLn(ListStr);
+    end;
   finally
   LispLang.Free ;
   end;

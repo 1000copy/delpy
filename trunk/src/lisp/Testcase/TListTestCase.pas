@@ -51,6 +51,7 @@ var
   n : TLispNode ;
 begin
   n := LispLang.EvalStr('(downfile "www.163.com" "/" "c:\ff.htm")');
+  n := LispLang.EvalStr('(ftp "user" "password" "ftp.163.com" "/adir" "c:\ff.htm"  3)');
 end;
 
 initialization
