@@ -49,8 +49,10 @@ begin
     end else if ParamStr(1)='-v' then  begin
       Usage
     end else while true do begin
-      Write('lisp console>>>');
+      Write(#13#10'lisp console>>>');
       ReadLn(ListStr);
+      LispLang.EvalStr(ListStr);
+
     end;
   finally
   LispLang.Free ;
