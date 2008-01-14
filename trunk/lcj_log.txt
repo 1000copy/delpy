@@ -1,3 +1,58 @@
+
+
+2008 - 1- 14 这个文章看起来已经解决了我的问题。
+  webdirectory在物理目录存在，但是在iismetabase内不存在，在使用前，需要创建webdirectory。、
+  
+   When you create a new directory or a file under a virtual directory, the directories or files are not created under the IIS Metabase. If you want to change the metabase properties of them, you will get an error like "The system cannot find the path specified".
+If you want to change the metabase properties of this directory or file, first you must create the directory or file under the IIS Metabase.
+
+http://www.codersource.net/csharp_iis_metabase.html
+
+2008 - 1- 14 
+System.DirectoryServices和adsi，wmi也是不同的？
+
+Admin objects are used when configuring IIS using the IIS ADSI and WMI providers, or System.DirectoryServices.
+
+
+
+2008 - 1- 14 这个文章接近于完美了，太好了，它不但有那些类，接口去操作iis，同事有Metabase Properties，就是那些在字符串内可以填写的内容清单，比如webdir.Accessscript就是允许执行脚本，但是这里除了Accessscript还可以写什么？这个文章都有列出。我是通过查找IIsWebDirectory找到的。为什么我的MSDN中没有？
+	
+http://msdn2.microsoft.com/en-us/library/ms526026(VS.85).aspx
+这里谈到的AccessFlags的可选值，包括AccessWrite，我想要的。
+http://msdn2.microsoft.com/en-us/library/ms525016(VS.85).aspx
+
+2008 - 1- 14 这个文章描述的就是我的问题。非常精确。
+http://channel9.msdn.com/ShowPost.aspx?PostID=46824
+2008 - 1- 14 最接近我的问题了。
+  我的虚拟目录为ad2，在ad2下有一个目录，叫做upload，需要设置他的实现为“允许写”，请看这段代码。
+http://www.velocityreviews.com/forums/t80550-creating-web-applications-not-via-iis-console.html
+
+2008 - 1- 14 一个人提到的问题中，说明随着深入的研究，他看到了davidwang的网站。
+Initially, research into this has led me to David's blog entry, which is helpful even though it is not intended to address this particular issue:
+
+2008 - 1- 14  david wang ,讲述了wmi和adsi的典型的代码上的区别，并举了一个混合使用的问题例子。
+
+http://blogs.msdn.com/david.wang/archive/2006/06/23/IIS-Configuration-Woes-with-ADSI-WMI-and-VBScript.aspx
+
+
+2008 - 1- 14  又见david wang ,他讲述了ntfs 权限，iis配置权限的差别，以及为什么iis没有设置可写，但是文件却可以upload的原因。
+
+http://blogs.msdn.com/david.wang/archive/2005/08/20/Why-can-I-upload-a-file-without-IIS-Write-Permission.aspx
+
+2008 - 1- 14  IIS可以在IISmmc内或者NTFS文件系统中设置权限，区别何在?
+
+ IIS Web 服务器的权限设置有两个地方，一个是 NTFS 文件系统本身的权限设置，另一个是 IIS 下网站->站点->属性->主目录（或站点下目录->属性->目录）面板上。这两个地方是密切相关的。
+ 	 See http://hi.bc-cn.net/112902/viewspace-7915
+2008 - 1- 14  参考 IIS7的IUSR帐号和原来的IUSR_MachineName的差别
+
+	IUSR内建帐号替代了IUSR_MachineName帐号
+	IIS_IUSRS内建组替代了IIS_WPG组
+  See http://www.codepub.com/info/2007/03/info-11752.html
+2008 - 1- 14  参考
+	这篇文章提到了 解决IIS目录权限问题[Microsoft OLE DB Provider for ODBC Drivers (0x80004005)] 
+	[Microsoft][ODBC Microsoft Access Driver] 不能更新。数据库或对象为只读。
+	和我sqlite遇到的问题类似，需要研究。
+	http://zheman.blog.enorth.com.cn/article/51725.shtml
 2008 - 1- 13  
   早晨被自己的各种想法逼的无处藏身，起来觉得有不少想法需要形诸文字。
   一篇叫做“ Martin Flowler的诚恳”，我开始注意Flowler始于Uml distilled，感到他语言简练，仅仅谈自己做的的事情，并不轻易的把道听途说的东西当成真理。能够明确的区分自己的信念和现实的区别。
