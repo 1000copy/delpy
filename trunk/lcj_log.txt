@@ -1,6 +1,33 @@
+--------------------2008年4月9日 
+  再次燃起对Pltshema ,emacs,clisp的热情。
+  1. Steel Bank Common Lisp 只有一个console界面，没有ui库的支持，还被评为最好的了，这也太...
+     
+  2. emacs,我喜欢的输入法都用不了，人家都是用自己的输入法，还想什么？日。
+     这些版本支持中文真的很麻烦。http://learn.tsinghua.edu.cn:8080/2004211031/publish/GNU/ntemacs.html
+  3. emacs 23 现在还是alpha版本，但是可以使用os的输入法了，看来emacs这个胡子一大把的家伙也开始有转变了。
+     现在emacs 23不必那么麻烦了
+     这小子自己编译了一个版本。http://learn.tsinghua.edu.cn:8080/2002315162/emacs_for_windows.html
+--------------------2008年4月9日 Testcase of Lisp GUI
+main:
+  (load "forms")
+  (load "form1")
+  (setq MainForm (new TForm1 ))
+  (MainLoop)
+form1
+  (
+   def-class TForm1
+	(prop NewTitle)
+	(def-fun TForm1 (a b)
+		nil
+	)
+	(def-fun func1 (b c)
+		nil
+	)
+  )
+可视效果
+  运行了一个主窗口
 
-
-2008 - 1- 14 这个文章看起来已经解决了我的问题。
+--------------------2008 - 1- 14 这个文章看起来已经解决了我的问题。
   webdirectory在物理目录存在，但是在iismetabase内不存在，在使用前，需要创建webdirectory。、
   
    When you create a new directory or a file under a virtual directory, the directories or files are not created under the IIS Metabase. If you want to change the metabase properties of them, you will get an error like "The system cannot find the path specified".
