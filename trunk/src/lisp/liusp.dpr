@@ -40,22 +40,21 @@ begin
   //LispLang := TLispLang.create;
   try
     if (ParamStr(1)='-f') then begin
-      LispLang.EvalFile(ParamStr(2));
+      FLispLang.EvalFile(ParamStr(2));
     end else if ParamStr(1)='-l' then  begin
       for i := 2 to ParamCount do
         //ListStr := ListStr + ParamStr(i);
         ListStr := Copy(CmdLine,Pos('-l',CmdLine)+2,length(CmdLine));
-      LispLang.EvalStr(ListStr);
+      FLispLang.EvalStr(ListStr);
     end else if ParamStr(1)='-v' then  begin
       Usage
     end else while true do begin
       Write(#13#10'lisp console>>>');
       ReadLn(ListStr);
-      LispLang.EvalStr(ListStr);
-
+      FLispLang.EvalStr(ListStr);
     end;
   finally
-  LispLang.Free ;
+  FLispLang.Free ;
   end;
 
 end.

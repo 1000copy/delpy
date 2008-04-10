@@ -1,3 +1,20 @@
+result := TLispNodeNull.create(FLispLang,true);
+result := TLispNodeTrue.create(FLispLang) 
+result := TLispNodeFalse.create(FLispLang);
+result := TLispNodeList.create(FLispLang,ll);
+
+--------------------2008年4月10日
+
+8日制定的testcase提过复杂，涉及到还没有的特性--oo，因此需要简化，以便集中精力
+
+main:
+  (load "forms")
+  (load "form1")
+  (setq MainForm (new TForm ))
+  (MainLoop)
+可视效果
+  运行了一个主窗口
+   
 --------------------2008年4月9日 
   确实要去回忆下，2007年到今天我想要做什么，真正做了什么，做成了那些？没有做到的，是否还要做
  　1. emacs 神秘的编辑器 - 有眉目了

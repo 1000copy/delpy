@@ -93,8 +93,6 @@ begin
 end;
 
 initialization
-  lispFile := TlispFile.Create ;
-  lispLang.RegisterPackage(lispFile);
 finalization
 //  作为接口，不再需要手工释放
 //  lispString.Free ;

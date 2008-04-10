@@ -7,6 +7,8 @@ type
   private
     function ldbQuery(lispNodes : TLispList) : TlispNode ;
     function ldbUpdate(lispNodes : TLispList) : TlispNode ;
+    function dbupdate(aDsn ,aSql : string ;password:string ='';username:string =''):TLispNode;
+    function dbquery(aDsn ,aSql : string ; password:string ='';username:string =''): TLispNode;
   public
     function CallFunction(fnName: String;list: TLispList): TLispNode;override ;
     function GetName:String;override ;
@@ -17,7 +19,7 @@ var
 implementation
 
 uses odbc,ulangException ;
-function dbupdate(aDsn ,aSql : string ;password:string ='';username:string =''):TLispNode;
+function TLispDb.dbupdate(aDsn ,aSql : string ;password:string ='';username:string =''):TLispNode;
 var
 query1 : Todbcst;
 begin
@@ -48,9 +50,10 @@ begin
    PSQLFreeConnect;
    PSQLFreeEnv;
  End;
- RESULT := TlispNode.create ('',nil,TT_TRUE)
+ //RESULT := TlispNode.create ('',nil,TT_TRUE)
+ RESULT := TlispNodeTrue.create (FLispLang);
 end;
-function dbquery(aDsn ,aSql : string ; password:string ='';username:string =''): TLispNode;
+function TLispDb.dbquery(aDsn ,aSql : string ; password:string ='';username:string =''): TLispNode;
 var
 query1 : Todbcst;
 i : integer ;
@@ -78,10 +81,12 @@ begin
                  for i :=1 to NumbCols do
                    //form1.caption := form1.caption + cellstring(i) ;
                  begin
-                   rl1.append(TLispNode.create (cellstring(i),nil,TT_STRING));
+                   //rl1.append(TLispNode.create (cellstring(i),nil,TT_STRING));
+                   rl1.append(TLispNodeString.create (FLispLang,cellstring(i)));
                  end;
                End;
-               rl.append (TLispNode.Create('',rl1,TT_LIST));
+               //rl.append (TLispNode.Create('',rl1,TT_LIST));
+               rl.append (TLispNodeList.Create(FLispLang,rl1));
             Except
                On E: Error_Odbc do
                   ;
@@ -185,6 +190,5 @@ begin
 end;
 
 initialization
- LispDb := TLispDb.Create ;
- lispLang.RegisterPackage(LispDb);
+ 
 end.

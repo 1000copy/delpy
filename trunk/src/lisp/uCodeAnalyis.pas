@@ -93,6 +93,5 @@ begin
   inherited Create(Format('ELispFileNotFound,FileName=%s ',[fn]));
 end;
 initialization
-  LispCA := TLispCA.Create ;
-  lispLang.RegisterPackage(LispCA);
+
 end.

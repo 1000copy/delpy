@@ -55,8 +55,6 @@ begin
 end;
 
 initialization
-  lispString := TLispString.Create ;
-  lispLang.RegisterPackage(lispString);
 finalization
 //  作为接口，不再需要手工释放
 //  lispString.Free ;
