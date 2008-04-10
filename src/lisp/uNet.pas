@@ -143,6 +143,5 @@ begin
 end;
 
 initialization
-  lispNet := TLispNet.create ;
-  LispLang.RegisterPackage(lispNet);
+  
 end.

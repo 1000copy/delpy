@@ -9,17 +9,22 @@ const
   CR_EQ = 1 ;CR_LT = 2 ;CR_GT = 3 ;CR_NE = 4 ;
 
 type
+  TLispLang = class ;
   TLispList = class;
   TLispNode = class
+  strict private
+    constructor create(token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;virtual;
+
   private
+    FLispLang : TLispLang ;
     isAtom : Boolean ;
     datatype :integer ;
     entity : string ;      // or
     lispList : TLispList ; // or
   public
+    constructor createNew(token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;virtual;
     function iDup : TLispNode ;
     procedure registerToReturnList ;
-    constructor create(token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;
     destructor destroy ;override ;
     function iPrint : TLispNode;
     function isNumb : boolean;
@@ -44,6 +49,7 @@ type
   TLispList = class
   private
     //fIndent : Integer  ;
+    FLispLang : TLispLang ;
     fIndentLen : Integer ;
     fName : String ;
     lispNodes : TList ;
@@ -54,6 +60,7 @@ type
     function iDup : TLispList ;
     function GetIndent(Level:Integer):String;
     function isDeepestList : Boolean;
+    function CallInternalFunc(var ln: TLispNode):Boolean;
   private
     // 用户表函数
     function lAdd :TLispNode;
@@ -79,9 +86,10 @@ type
     function llen :TLispNode;
     function lhomedir :TLispNode;
     function ltestpackage:TLispNode;
-    function luserdefun(fName : String):TLispNode;
+    function luserdefun(fName: String;var ln :TLispNode): Boolean;
+
   public
-    constructor create ;
+    constructor create (LispLang:TLispLang);reintroduce ;
     destructor destroy ;override ;
     // 内部表函数
     function size : integer ;
@@ -90,27 +98,36 @@ type
     procedure checkSizeEquals(A:Integer);overload ;
     procedure checkSizeGE(A:Integer);overload ;
     procedure checkSizeEquals(A:Array of Integer);overload ;
+    function getStr: String;
   end;
   THashTable = class(TStringList)
-    constructor create ;
+  private
+    FLispLang :TLispLang;
+  public
+    constructor create (LispLang:TLispLang);
     destructor destroy ;override ;
     procedure setValue(Index : string; obj :TLispNode);
     function getValue(Index : string):TLispNode ;
   end;
 
 
-type
+
   ILispPackage = interface
     function CallFunction(fnName:String;list: TLispList):TLispNode;
+    function SupportFunction(fnName:String):Boolean;
     function GetName:String;
     function GetTestSrc:String;
   end;
   TLispPackageBase = class(TInterfacedObject,ILispPackage)
+  protected
+    FLispLang : TLispLang ;
+  public
     function CallFunction(fnName:String;list: TLispList):TLispNode;virtual;
     function GetName:String;virtual;
     function GetTestSrc:String;virtual;
+    function SupportFunction(fnName:String):Boolean;virtual;
+    constructor Create(ll :TLispLang);reintroduce;
   end;
-type
   TLispLang = class
   private
    FParser : TLispParser ;
@@ -120,7 +137,7 @@ type
    funcList : THashtable ;
    returnList : TLispList ;
    FStdOut: TStrings;
-   function byLoad (s : TStream):TLispList;
+   function LoadFileToList (s : TStream):TLispList;
   private
    procedure iLoad (s : TStream);overload;
    procedure iLoad (FileName:String);overload;
@@ -132,31 +149,57 @@ type
    procedure nodeListPrint ;
    procedure returnlistClear ;
    procedure put (s : string);
-   function iCallPackage(fName : String;list:TLispList):TLispNode;
+   function CallPackageFunc(fName : String;list:TLispList;var ln:TLispNode): Boolean ;
   public
-   constructor Create ;
+   constructor Create ;reintroduce;
    destructor Destroy;override ;
-   function  EvalFile (FileName : String):TLispList;
+   function  EvalFile (FileName : String):TLispNode;
    function  EvalStr (ListStr : String):TLispNode ;
    property StdOut : TStrings read FStdOut write FStdOut;
    procedure RegisterPackage(I:ILispPackage);
    procedure returnlistPrint ;
   end;
-  function LispLang : TLispLang ;
-
+type
+  TLispNodeString = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeNull = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeInt= class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeTrue = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeFalse = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeList = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;list : TLispList;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeNumb = class(TLispNode)
+  public
+   constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
+  end;
+  TLispNodeAtom  = class(TLispNode)
+  public
+   constructor create(ALispLang :TLispLang;token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;virtual;
+  end;
 /////////////
 procedure output(S:String);
 implementation
 uses uString ,uNet ,uDb;
 var
-  FLispLang : TLispLang ;
   fIndent : Integer  ;TestIP:ILispPackage;
-function LispLang : TLispLang ;
-begin
-  if FLispLang = nil then
-    FLispLang := TLispLang.create;
-  Result := FLispLang ;
-end;
+
+  
 procedure TLispLang.RegisterPackage(I:ILispPackage);
 var
   j : Integer ;
@@ -166,11 +209,11 @@ begin
 end;
 procedure output(S:String);
 begin
-  LispLang.put(s);
+  //FLispLang.put(s);
   //Is Console Application
-  if Application.MainForm = nil then
+  //if Application.MainForm = nil then
   //if pos('liusp.exe', .ExeName) > 0 then
-    Write (s) ;
+  //  Write (s) ;
 end;
 procedure TLispLang.put (s : string);
 begin
@@ -179,11 +222,12 @@ end;
 
 constructor TLispLang.create ;
 begin
+  Inherited ;
   FParser := TLispParser.create ;
-  NodeList := TLispList.create ;
-  varList := Thashtable.create ;
-  funcList := Thashtable.create ;
-  ReturnList := TLispList.create ;
+  NodeList := TLispList.create (Self);
+  varList := Thashtable.create (self);
+  funcList := Thashtable.create (self);
+  ReturnList := TLispList.create (self);
   SetLength(FPackageList,0);
 end;
 destructor TLispLang.destroy;
@@ -211,7 +255,7 @@ end;
 
 procedure TLispLang.iLoad (s : TStream);
 begin
-  NodeList := byLoad(s) ;
+  NodeList := LoadFileToList(s) ;
 end;
 var
   // for  print
@@ -245,8 +289,10 @@ begin
 
 end;
 
-constructor TLispList.create;
+constructor TLispList.create(LispLang:TLispLang);
 begin
+  inherited Create;
+  FLispLang := LispLang ;
   lispNodes := TList.Create ;
   fIndent := 0 ;
   fIndentLen := 2 ;
@@ -266,76 +312,34 @@ var
   ln : TLispNode ;
   i : integer;
 begin
+ // ()
  if lispNodes.Count < 1 then
  begin
-   result := TLispNode.create('',nil,TT_NULL,true) ;
+   //result := TLispNode.create('',nil,TT_NULL,true) ;
+   result := TLispNodeNull.create(FLispLang) ;
    exit;
  end;
 
  ln := TLispNode(lispNodes.Items[0]); // .iEvaluate ; NOT EVALUATE!
  if not ((ln.isAtom) and (ln.datatype = TT_TOKEN)) then
  begin
-   result := TLispNode.create('',nil,TT_NULL,true) ;
+   //result := TLispNode.create('',nil,TT_NULL,true) ;
+   result := TLispNodeNull.create(FLispLang,true) ;
    exit;
  end;
- fName := ln.entity ;
- fName := lowerCase(fName);
- if fName = '+' then
-   result := ladd
- else if fName = 'defun' then
-   result := ldefun 
- else if fName = '=' then
-   result := lsetq
- else if fName = 'print' then
-   result := lprint
- else if fName = 'quote' then
-   result := lquote
- else if fName = '-' then
-   result := ldec
- else if fName = '*' then
-   result := lmulti
- else if fName = '/' then
-   result := ldivide
- else if fName = '>=' then
-   result := lge
- else if fName = '<=' then
-   result := lle
- else if fName = '>' then
-   result := lgt
- else if fName = '<' then
-   result := llt
- else if fName = '==' then
-   result := leq
- else if fName = 'repeat' then
-   result := lrepeat
- else if fName = 'if' then
-   result := lif
- else if fName = 'do' then
-   result := ldo
- else if fName = 'load' then
-   result := lload
- // List
- else if fName = 'nth' then
-   result := lnth
- else if fName = 'len' then
-   result := llen
- else if fName = 'homedir' then
-   result := lhomedir
-  else if fName = 'testpackage' then
-   result := ltestpackage
- else begin
-   result := LispLang.iCallPackage(fName,Self);
-   if result = nil then begin
-     Result := luserdefun(fName);
-   end;
-   if result = nil then begin
-     result := TLispNode.create('',nil,TT_NULL,true);
-     raise ELispNoFunction.Create(fname);
-   end;
+ fName := lowerCase(ln.entity) ;
+ if (not CallInternalFunc(Result))and
+    (not FLispLang.CallPackageFunc(fName, Self,Result))and
+    (not luserdefun(fName,Result) ) then
+ begin
+        //result := TLispNode.create('', nil, TT_NULL, true);
+        result := TLispNodeNull.create(FLispLang,true);
+        raise ELispNoFunction.Create(fname);
  end;
+
  // 为什么这样?好像至少创建了一个Node，然后在formclose的时候释放，没有任何用处？
  result := result.iDup ;
- result.registerToReturnList ;
+ //result.registerToReturnList ;
 end;
 
 function TLispList.isDeepestList : Boolean;
@@ -383,7 +387,42 @@ begin
        output(#13#10);
        output(RepeatStr(' ',fIndent*fIndentLen)+')');
      end else
-       output(')'); 
+       output(')');
+end;
+function TLispList.getStr: String;
+var
+  i ,j: integer ;
+  ContainList : Boolean ;
+  s : String;
+
+  function RepeatStr(S:String;Len : Integer):String;
+  var
+    i : Integer ;
+  begin
+    for i := 0 to Len -1 do
+      Result := Result + S ;
+  end;
+begin
+     Result := Result +(RepeatStr(' ',fIndent*fIndentLen)+'(');
+     ContainList := False ;
+     for i := 0 to size-1 do
+     begin
+        if nth(i).isList then
+        begin
+          Result := Result +(#13#10);
+          fIndent := fIndent + 1 ;
+        end;
+        result := result + nth(i).getStr ;
+        if nth(i).isList then
+        begin
+          fIndent := fIndent - 1 ;
+        end;
+     end;
+     if not isDeepestList then begin
+       Result := Result +#13#10;
+       Result := Result +RepeatStr(' ',fIndent*fIndentLen)+')';
+     end else
+       Result := Result +')';
 end;
 
 function TLispList.nth(i: integer): TLispNode;
@@ -410,7 +449,8 @@ begin
   end;
   if lispNodes.Count = 1 then
   begin
-   result := TLispNode.create('',nil,TT_NULL,true);
+   //result := TLispNode.create('',nil,TT_NULL,true);
+   result := TLispNodeNull.create(FLispLang,true);
   end;
 end;
 
@@ -433,7 +473,7 @@ begin
     if (token <>'') then
     begin
       valueNode := nth(i).iEvaluate ;
-      lispLang.varList.setValue(token,valueNode);
+      FLispLang.varList.setValue(token,valueNode);
       token :='' ;
     end;
   end;
@@ -472,7 +512,7 @@ function TLispList.iDup: TLispList;
 var
   i : integer ;
 begin
-  Result := TLispList.create ;
+  Result := TLispList.create (FLispLang);
   for i := 0 to size -1 do
   begin
     Result.append(nth(i).iDup) ;
@@ -559,7 +599,8 @@ begin
   else
     k := trunc(tn.getnumb) ;
   if k = 0 then
-    Result := TLispnode.create('',nil,TT_TRUE)
+    //Result := TLispnode.create('',nil,TT_TRUE)
+    Result := TLispnodeTrue.create(FLispLang)
   else
   for j := 0 to k -1 do
     for i := 2 to size -1 do
@@ -633,8 +674,10 @@ begin
    end;
  end;
  IF numbCount = 0 then
- result := TLispNode.create(inttoStr(ri),nil,TT_INT) else
- result := TLispNode.create(floatToStr(rn),nil,TT_NUMB);
+        //result := TLispNode.create(inttoStr(ri),nil,TT_INT) else
+        result := TLispNodeInt.create(FLispLang,inttoStr(ri)) else
+        //result := TLispNode.create(floatToStr(rn),nil,TT_NUMB);
+        result := TLispNodeNumb.create(FLispLang,floatToStr(rn));
  // remember return pointer ,so I can dispose later
  //LispLang.returnList.append(result);
 end;
@@ -721,8 +764,10 @@ begin
     end;
   end;
   if rb then
-  result := TLispNode.create('',nil,TT_TRUE) else
-  result := TLispNode.create('',nil,TT_FALSE);
+  //result := TLispNode.create('',nil,TT_TRUE) else
+  result := TLispNodeTrue.create(FLispLang) else
+  //result := TLispNode.create('',nil,TT_FALSE);
+  result := TLispNodeFalse.create(FLispLang);
 end;
 
 
@@ -739,12 +784,13 @@ begin
   stream := TFileStream.create(t,fmOpenRead);
   try
     try
-    l := lispLang.byLoad(stream);
-    result := TLispNode.create ('',l,TT_LIST,true);
+    l := FLispLang.LoadFileToList(stream);
+    //result := TLispNode.create ('',l,TT_LIST,true);
+    result := TLispNodeList.create (FLispLang,l,true);
     except
       raise ELispFileNotExist.Create;
     end;
-  finally   
+  finally
     stream.Free ;
   end;
 
@@ -770,12 +816,14 @@ begin
   checkSizeEquals(2);
   nth(1).iEvaluate.checkList;
   l := nth(1).iEvaluate.getList  ;
-  result := TLispNode.create (inttoStr(l.size),nil,TT_INT);
+  //result := TLispNode.create (inttoStr(l.size),nil,TT_INT);
+  result := TLispNodeInt.create (FLispLang,inttoStr(l.size));
 end;
 
 function TLispList.lhomedir: TLispNode;
 begin
-  Result := TLispNode.create (ExtractFilePath(application.ExeName),nil,TT_STRING);
+  //Result := TLispNode.create (ExtractFilePath(application.ExeName),nil,TT_STRING);
+  Result := TLispNodeString.create (FLispLang,ExtractFilePath(application.ExeName));
 end;
 
 function TLispList.GetIndent(Level: Integer): String;
@@ -803,20 +851,71 @@ begin
     raise ELispParameterSize.create;//
 end;
 
+function TLispList.CallInternalFunc(var ln: TLispNode):Boolean;
+begin
+  Result := True;
+  if fName = '+' then
+    ln := ladd
+  else if fName = 'defun' then
+    ln := ldefun
+  else if (fName = '=') or (fName ='setq') then
+    ln := lsetq
+  else if fName = 'print' then
+    ln := lprint
+  else if fName = 'quote' then
+    ln := lquote
+  else if fName = '-' then
+    ln := ldec
+  else if fName = '*' then
+    ln := lmulti
+  else if fName = '/' then
+    ln := ldivide
+  else if fName = '>=' then
+    ln := lge
+  else if fName = '<=' then
+    ln := lle
+  else if fName = '>' then
+    ln := lgt
+  else if fName = '<' then
+    ln := llt
+  else if fName = '==' then
+    ln := leq
+  else if fName = 'repeat' then
+    ln := lrepeat
+  else if fName = 'if' then
+    ln := lif
+  else if fName = 'do' then
+    ln := ldo
+  else if fName = 'load' then
+    ln := lload
+  else // List
+  if fName = 'nth' then
+    ln := lnth
+  else if fName = 'len' then
+    ln := llen
+  else if fName = 'homedir' then
+    ln := lhomedir
+  else if fName = 'testpackage' then
+    ln := ltestpackage
+  else
+    Result := False;
+end;
+
 
 function TLispList.ltestpackage: TLispNode;
 var
   i :Integer ;
 begin
   output('TestPackage'+#10);
-  for i := low(LispLang.FPackageList) to high(LispLang.FPackageList) do begin
-    output('###Name  :'+LispLang.FPackageList[i].GetName +#10);
-    output('   Src   :'+LispLang.FPackageList[i].GetTestSrc+#10);
+  for i := low(FLispLang.FPackageList) to high(FLispLang.FPackageList) do begin
+    output('###Name  :'+FLispLang.FPackageList[i].GetName +#10);
+    output('   Src   :'+FLispLang.FPackageList[i].GetTestSrc+#10);
     output('   Result:');
-    LispLang.EvalStr(LispLang.FPackageList[i].GetTestSrc);
+    FLispLang.EvalStr(FLispLang.FPackageList[i].GetTestSrc);
     output(#10);
   end;
-  result := TLispNode.create('',nil,TT_NULL,true) ;
+  //result := TLispNode.create('',nil,TT_NULL,true) ;
+  result := TLispNodeNull.create(FLispLang,true) ;
 end;
 
 function TLispList.ldefun: TLispNode;
@@ -831,12 +930,11 @@ begin
   self.checkSizeGE(3);
   self.nth(1).CheckToken ;  //FunctionName
   self.nth(2).CheckList ; //Args
-  ll := TLispList.create;
+  ll := TLispList.create(FLispLang);
   for i := 2 to size -1 do
     ll.append(nth(i));
-  //result := TLispNode.create('',ll,TT_LIST,true);
-  result := TLispNode.create('',ll,TT_LIST);
-  //LispLang.funcList.setValue(self.nth(1).GetStr,Result.iDup);
+  //result := TLispNode.create('',ll,TT_LIST);
+  result := TLispNodeList.create(FLispLang,ll);
 end;
 
 procedure TLispList.checkSizeGE(A: Integer);
@@ -849,19 +947,24 @@ begin
     raise ELispParameterSize.create;//
 end;
 
-function TLispList.luserdefun(fName: String): TLispNode;
+function TLispList.luserdefun(fName: String;var ln :TLispNode): Boolean;
 var
   FuncBody,Arg,n2 : TLispNode ;
   i : Integer ;
 begin
-  FuncBody := LispLang.funcList.getValue(fName);
-  Arg  := FuncBody.GetList.nth(0) ; //Arg
-  if Self.size <> Arg.getList.size + 1 then
-    Raise ELispParameterSize.Create ;
-  for i := 1 to self.size -1 do
-    LispLang.varList.setValue(Arg.getList.nth(i-1).GetStr,nth(i).iEvaluate);
-  for i := 1 to FuncBody.GetList.size -1 do
-    Result := FuncBody.getList.nth(i).iEvaluate ;
+  Result := True;
+  FuncBody := FLispLang.funcList.getValue(fName);
+  if FuncBody<>nil then
+  begin
+    Arg  := FuncBody.GetList.nth(0) ; //Arg
+    if Self.size <> Arg.getList.size + 1 then
+      Raise ELispParameterSize.Create ;
+    for i := 1 to self.size -1 do
+      FLispLang.varList.setValue(Arg.getList.nth(i-1).GetStr,nth(i).iEvaluate);
+    for i := 1 to FuncBody.GetList.size -1 do
+      ln := FuncBody.getList.nth(i).iEvaluate ;
+  end else
+    Result := False;
 end;
 
 { TLispNode }
@@ -932,7 +1035,13 @@ begin
   end;
   end;
   if toReturnList then
-    LispLang.returnList.append(self);
+    FLispLang.returnList.append(self);
+end;
+
+constructor TLispNode.createNew(token: string; ll: TLispList; dt: integer;
+  toReturnList: boolean);
+begin
+  create(token,ll,dt,toReturnList);
 end;
 
 destructor TLispNode.destroy;
@@ -943,6 +1052,7 @@ begin
     lispList.free ;
   end else
     ;//output('dispose list');
+  inherited destroy;
 end;
 
 function TLispNode.getBool: Boolean;
@@ -967,7 +1077,10 @@ end;
 
 function TLispNode.getStr: String;
 begin
-  result := entity ;
+  if isatom then  
+        result := entity
+  else
+     result := lispList.getStr ;
 end;
 
 function TLispNode.iDup: TLispNode;
@@ -976,11 +1089,11 @@ begin
   if isAtom then
   begin
     //Result := TLispNode.create(entity,nil,datatype,true);
-    Result := TLispNode.create(entity,nil,datatype);
+    Result := TLispNodeAtom.create(FLispLang,entity,nil,datatype,true);
   end else
   begin
     //Result := TLispNode.create('',lispList.iDup,TT_LIST,true);
-    Result := TLispNode.create('',lispList.iDup,TT_LIST);
+    Result := TLispNodeList.create(FLispLang,lispList.iDup,true);
   end;
 
 end;
@@ -1002,7 +1115,7 @@ begin
         result := TLispNode.create('',nil,TT_NULL)
       else
       begin
-        result := LispLang.VarValue(entity);
+        result := FLispLang.VarValue(entity);
         if result = nil then
         begin
           raise ELispTokenNotInit.Create(entity) ;
@@ -1068,13 +1181,14 @@ end;
 
 procedure TLispNode.registerToReturnList;
 begin
-  LispLang.returnList.append(self);
+  FLispLang.returnList.append(self);
 end;
 
 { THashTable }
 
-constructor THashTable.create;
+constructor THashTable.create(LispLang:TLispLang);
 begin
+  FLispLang := LispLang ;
   sorted := true ;
 end;
 // todo 1
@@ -1104,9 +1218,10 @@ var
 begin
   // setvalue must copy a object ,else will "invalid pointer operation" when system exit
   if obj.datatype = TT_LIST then
-    ln := TLispNode.create('',obj.lispList.idup,obj.datatype)
+    //ln := TLispNode.create('',obj.lispList.idup,obj.datatype)
+    ln := TLispNodeList.create(FLispLang,obj.lispList.idup)
   else
-    ln := TLispNode.create(obj.entity,nil,obj.datatype);
+    ln := TLispNode.createNew(obj.entity,nil,obj.datatype);
   // change copy tranmit to evaluate ,for simplize
   //ln := obj ;
   if find(Index,i) then
@@ -1143,7 +1258,7 @@ end;
 procedure TLispLang.returnlistClear ;
 begin
   returnList.free ;
-  returnList := TLispList.create ;
+  returnList := TLispList.create (Self);
 end;
 
 procedure TLispLang.nodeListPrint;
@@ -1151,7 +1266,7 @@ begin
   nodelist.iPrint ;
 end;
 
-function TLispLang.byLoad(s: TStream): TLispList;
+function TLispLang.LoadFileToList(s: TStream): TLispList;
 var
  f : Integer ;
  t : string ;
@@ -1161,22 +1276,23 @@ var
 begin
   FParser.load(s);
   historyStack := TStack.Create ;
-  list := TLispList.create ;
+  list := TLispList.create (Self);
   currList := list ;
   f := FParser.nextToken(t) ;
   while (f > TT_EOF) do
   begin
     if (f = TT_NUMB) or (f = TT_INT) or(f = TT_TOKEN ) or (f = TT_STRING) then
     begin
-      tempNode := TLispNode.create(t,nil,f);
+      tempNode := TLispNodeAtom.create(self,t,nil,f);
       currList.append(tempNode);
     end
     else
     begin
       if f = TT_LEFT then
       begin
-        tempList := TLispList.create ;
-        tempNode := TLispNode.create('',tempList,TT_LIST);
+        tempList := TLispList.create(Self) ;
+        //tempNode := TLispNode.create('',tempList,TT_LIST);
+        tempNode := TLispNodeList.create(self,tempList);
         currList.append(tempNode);
         historyStack.push(currList);
         currList := tempList ;
@@ -1198,19 +1314,14 @@ begin
   // result is ===
   result := list ;
 end;
-function  TLispLang.EvalFile (FileName : String):TLispList;
+function  TLispLang.EvalFile (FileName : String):TLispNode;
 var
- t : string ;
- F : Integer ;
- S :TMemorystream ;
- p : TLispParser ;
- r : TLispNode ;
- fs : TFileStream ;
  sl : TStringList;
 begin
   try
       sl := TStringList.Create ;
-      EvalStr(sl.Text);
+      sl.LoadFromFile(FileName);
+      Result := EvalStr(sl.Text);
   finally
     sl.free ;
   end;       
@@ -1272,16 +1383,20 @@ begin
    FS.Free ;
   end;
 end;
-function TLispLang.iCallPackage(fName : String;list:TLispList): TLispNode ;
+function TLispLang.CallPackageFunc(fName : String;list:TLispList;var ln:TLispNode): Boolean ;
 var
   i : Integer ;
   il : ILispPackage ;
 begin
-  Result := nil ;
-  for i := low(FPackageList) to high(FPackageList) do begin
-    Result := FPackageList[i].CallFunction(fName,list);
-    if not (Result = nil) then
+  Result := False;
+  for i := low(FPackageList) to high(FPackageList) do
+  begin
+    ln := FPackageList[i].CallFunction(fName,list);
+    if not (ln = nil) then
+    begin
+      Result := true;
       break ;
+    end;
   end;
 end;
 { TLispPackageBase }
@@ -1290,6 +1405,12 @@ function TLispPackageBase.CallFunction(fnName: String;
   list: TLispList): TLispNode;
 begin
   Result := nil ;
+end;
+
+
+constructor TLispPackageBase.Create(ll: TLispLang);
+begin
+  FLispLang := ll ;
 end;
 
 function TLispPackageBase.GetName: String;
@@ -1301,7 +1422,12 @@ function TLispPackageBase.GetTestSrc: String;
 begin
   Result := '(+ 1 1 )';
 end;
-  {
+function TLispPackageBase.SupportFunction(fnName: String): Boolean;
+begin
+  Result := False;
+end;
+
+{
 
  When you will add new lisp function in TLispList,
  you can write code by the template:
@@ -1325,6 +1451,76 @@ end;
      result := TLispNode.create(token,lispList,datatype,true);
 
   }
+
+{ TLispNodeString }
+
+
+{ TLispNodeString }
+
+constructor TLispNodeString.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
+begin
+  inherited CreateNew(str,nil,TT_STRING,toReturnList);
+  Self.FLispLang := ALispLang ;
+end;
+
+{ TLispNodeNumb }
+
+constructor TLispNodeNumb.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
+begin
+  inherited CreateNew(str,nil,TT_NUMB,toReturnList);
+  Self.FLispLang := ALispLang ;
+end;
+
+{ TLispNodeNull }
+
+constructor TLispNodeNull.Create(ALispLang: TLispLang;toReturnList:boolean=false);
+begin
+  inherited CreateNew('',nil,TT_NULL,toReturnList);
+  Self.FLispLang := ALispLang ;
+
+end;
+
+{ TLispNodeInt }
+
+constructor TLispNodeInt.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
+begin
+  inherited CreateNew(str,nil,TT_INT,toReturnList);
+  Self.FLispLang := ALispLang ;
+end;
+
+{ TLispNodeTrue }
+
+constructor TLispNodeTrue.Create(ALispLang: TLispLang;toReturnList:boolean=false);
+begin
+  inherited CreateNew('',nil,TT_TRUE,toReturnList);
+  Self.FLispLang := ALispLang ;
+end;
+
+{ TLispNodeList }
+
+constructor TLispNodeList.Create(ALispLang: TLispLang; list : TLispList;toReturnList:boolean=false);
+begin
+  inherited CreateNew('',list,TT_LIST,toReturnList);
+  Self.FLispLang := ALispLang ;
+end;
+
+{ TLispNodeFalse }
+
+constructor TLispNodeFalse.Create(ALispLang: TLispLang; toReturnList: boolean);
+begin
+  inherited CreateNew('',nil,TT_FALSE,toReturnList);
+  Self.FLispLang := ALispLang ;
+
+end;
+
+{ TLispNodeAtom }
+
+constructor TLispNodeAtom.create(ALispLang: TLispLang; token: string;
+  ll: TLispList; dt: integer; toReturnList: boolean);
+begin
+  FLispLang := ALispLang ;
+  inherited CreateNew(token,nil,dt,toReturnList);
+end;
 
 end.
 

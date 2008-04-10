@@ -1,9 +1,9 @@
 object fmLiusp: TfmLiusp
   Left = 307
   Top = 211
-  Width = 733
-  Height = 566
   Caption = 'Liusp'
+  ClientHeight = 532
+  ClientWidth = 725
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,13 +18,14 @@ object fmLiusp: TfmLiusp
   object Splitter1: TSplitter
     Left = 353
     Top = 0
-    Height = 498
+    Height = 491
+    ExplicitHeight = 498
   end
   object Memo1: TMemo
     Left = 0
     Top = 0
     Width = 353
-    Height = 498
+    Height = 491
     Align = alLeft
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -42,7 +43,7 @@ object fmLiusp: TfmLiusp
     Left = 356
     Top = 0
     Width = 369
-    Height = 498
+    Height = 491
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -53,14 +54,16 @@ object fmLiusp: TfmLiusp
     ParentFont = False
     TabOrder = 1
     WordWrap = False
+    ExplicitHeight = 498
   end
   object Panel1: TPanel
     Left = 0
-    Top = 498
+    Top = 491
     Width = 725
     Height = 41
     Align = alBottom
     TabOrder = 2
+    ExplicitTop = 498
     object Button3: TButton
       Left = 264
       Top = 8
