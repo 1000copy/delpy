@@ -40,7 +40,8 @@ begin
     if n.isStr then
       rs := rs + n.getStr ;
   end;
-  result := TLispNode.create(rs,nil,TT_STRING);
+  //result := TLispNode.create(rs,nil,TT_STRING);
+  result := TLispNodeString.create(FLispLang,rs);
   //TForm.Create(nil).Show;
   //Sleep(10000);
 end;

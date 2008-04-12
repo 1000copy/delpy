@@ -101,14 +101,17 @@ type
         TestTLispLang = class(TTestCase)
         strict private
                 FLispLang: TLispLang;
+  private
         public
                 procedure SetUp; override;
                 procedure TearDown; override;
         published
+                procedure TestLoadStr;
                 procedure TestEvalFile;
                 procedure TestEvalStr;
                 procedure TestRegisterPackage;
                 procedure TestreturnlistPrint;
+                procedure TestLoadStr1;
         end;
 
 implementation
@@ -432,7 +435,7 @@ end;
 
 procedure TestTLispLang.TearDown;
 begin
-        FLispLang.Free;
+        //FLispLang.Free;
         FLispLang := nil;
 end;
 
@@ -465,7 +468,26 @@ begin
         ReturnValue := FLispLang.EvalStr(ListStr);
         Check(ReturnValue.isInt,ReturnValue.getStr);
 end;
-
+procedure TestTLispLang.TestLoadStr;
+var
+        ReturnValue: TLispList;
+        ListStr: string;
+begin
+        ListStr := '(1 2)';
+        ReturnValue := FLispLang.LoadStr(ListStr);
+        Check('((1 2))'=ReturnValue.GetStr,
+          ReturnValue.GetStr);
+end;
+procedure TestTLispLang.TestLoadStr1;
+var
+        ReturnValue: TLispList;
+        ListStr: string;
+begin
+        ListStr := '(1)(2)';
+        ReturnValue := FLispLang.LoadStr(ListStr);
+        Check('((1)(2))'=ReturnValue.GetStr,
+          ReturnValue.GetStr);
+end;
 procedure TestTLispLang.TestRegisterPackage;
 var
         I: ILispPackage;

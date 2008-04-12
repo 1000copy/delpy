@@ -1,7 +1,8 @@
-result := TLispNodeNull.create(FLispLang,true);
-result := TLispNodeTrue.create(FLispLang) 
-result := TLispNodeFalse.create(FLispLang);
-result := TLispNodeList.create(FLispLang,ll);
+--------------------2008年4月10日
+把TLispNode进一步分为TLispNodeNull,TLispNodeTrue,TLispNodeFalse,TLispNodeList
+代码对比：
+        //result := TLispNode.create(inttoStr(ri),nil,TT_INT) else
+        result := TLispNodeInt.create(FLispLang,inttoStr(ri)) else
 
 --------------------2008年4月10日
 

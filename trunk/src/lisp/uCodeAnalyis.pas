@@ -5,7 +5,7 @@ unit uCodeAnalyis;
 
 (repeat (len a)
   (do
-     (= i (+ i 1))             
+     (= i (+ i 1))
      (print  (nth a i)  (loc (nth a i) true))
      (print "#10")
   )
@@ -52,7 +52,8 @@ begin
   n1.checkStr ;
   n2 := l.nth(2).iEvaluate;
   n2.checkBool;
-  result := TLispNode.create(InttoStr(GetLoc(n1.getStr,n2.getBool)),nil,TT_INT);
+  //result := TLispNode.create(InttoStr(GetLoc(n1.getStr,n2.getBool)),nil,TT_INT);
+  result := TLispNodeInt.create(FLispLang,InttoStr(GetLoc(n1.getStr,n2.getBool)));
 end;
 function TLispCA.GetName: String;
 begin

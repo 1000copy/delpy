@@ -46,13 +46,15 @@ begin
   sl := TStringList.Create;
   try
     GetFileList(n1.getStr,n2.getStr,sl);
-    ll := TLispList.create ;
+    ll := TLispList.create (FLispLang);
     for i := 0 to sl.Count -1 do
-      ll.append(TLispNode.create(sl.Strings[i],nil,TT_STRING));
+      //ll.append(TLispNode.create(sl.Strings[i],nil,TT_STRING));
+      ll.append(TLispNodeString.create(FLispLang,sl.Strings[i]));
   finally
     sl.Free ;
   end;
-  result := TLispNode.create('',ll,TT_LIST);
+  //result := TLispNode.create('',ll,TT_LIST);
+  result := TLispNodeList.create(FLispLang,ll);
 end;
 procedure TlispFile.GetFileList(Dir, Mask: String; var sl: TStringList);
   procedure RescureFiles(Dir, Mask: String);
