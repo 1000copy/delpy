@@ -73,11 +73,11 @@ begin
                Sql := asql;
                execute;
                //  table -
-               rl := TLispList.create ;
+               rl := TLispList.create (FLispLang);
                While Next do
                Begin
                  //  table -
-                 rl1 := TLispList.create ;
+                 rl1 := TLispList.create(FLispLang) ;
                  for i :=1 to NumbCols do
                    //form1.caption := form1.caption + cellstring(i) ;
                  begin
@@ -102,7 +102,8 @@ begin
    PSQLFreeConnect;
    PSQLFreeEnv;
  End;
- result := TLispNode.Create('',rl1,TT_LIST);
+ //result := TLispNode.Create('',rl1,TT_LIST);
+ result := TLispNodeList.Create(FLispLang,rl1);
 end;
 
 

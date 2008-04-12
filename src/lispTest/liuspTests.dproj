@@ -16,7 +16,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Version>7.0</Version>
-    <DCC_Define>DEBUG</DCC_Define>
+    <DCC_Define>DEBUG;_CONSOLE_TESTRUNNER</DCC_Define>
+    <DCC_UnitSearchPath>;$(BDS)\Source\DUnit\src</DCC_UnitSearchPath>
+    <DCC_ResourcePath>;$(BDS)\Source\DUnit\src</DCC_ResourcePath>
+    <DCC_ObjPath>;$(BDS)\Source\DUnit\src</DCC_ObjPath>
+    <DCC_IncludePath>;$(BDS)\Source\DUnit\src</DCC_IncludePath>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
@@ -57,13 +61,29 @@
     <Source>
       <Source Name="MainSource">liuspTests.dpr</Source>
     </Source>
-  </Delphi.Personality> </BorlandProject></BorlandProject>
+  </Delphi.Personality>   <UnitTesting>   <TestFramework>DUnit / Delphi Win32</TestFramework>
+    <TestRunner>GUI</TestRunner>
+  </UnitTesting>
+</BorlandProject></BorlandProject>
   </ProjectExtensions>
-  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
+  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
   <ItemGroup>
     <DelphiCompile Include="liuspTests.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
+    <DCCReference Include="..\lisp\Odbc.pas" />
+    <DCCReference Include="..\lisp\uCodeAnalyis.pas" />
+    <DCCReference Include="..\lisp\uDb.pas" />
+    <DCCReference Include="..\lisp\uFile.pas" />
+    <DCCReference Include="..\lisp\uLang.pas" />
+    <DCCReference Include="..\lisp\ulangException.pas" />
+    <DCCReference Include="..\lisp\uMain.pas">
+      <Form>fmLiusp</Form>
+    </DCCReference>
+    <DCCReference Include="..\lisp\uNet.pas" />
+    <DCCReference Include="..\lisp\uParser.pas" />
+    <DCCReference Include="..\lisp\uString.pas" />
+    <DCCReference Include="TestuLang.pas" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
 </Project>

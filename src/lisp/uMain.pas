@@ -39,7 +39,7 @@ procedure TfmLiusp.btnRunClick(Sender: TObject);
 begin
   btnRun.Enabled := false ;
   try
-    FLispLang.EvalStr(memo1.lines.Text);
+    //FLispLang.EvalStr(memo1.lines.Text);
   finally
     btnRun.Enabled := true ;
   end;
@@ -53,27 +53,27 @@ end;
 procedure TfmLiusp.Button3Click(Sender: TObject);
 begin
   //output('ReturnLen'+Inttostr(lispLang.returnlistSize)+#13#10) ;
-  FLispLang.returnlistPrint ;
+  //FLispLang.returnlistPrint ;
   //outPut(#13#10);
   //lispLang.nodeListPrint ;
 end;
 
 procedure TfmLiusp.FormCreate(Sender: TObject);
-begin                                 
+begin
   //LispLang := TLispLang.create;
-  FLispLang.StdOut := Memo2.Lines ;
+  //FLispLang.StdOut := Memo2.Lines ;
 end;
 
 procedure TfmLiusp.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FLispLang.free ;
+  //FLispLang.free ;
 end;
 
 procedure TfmLiusp.btnTestPackageClick(Sender: TObject);
 begin
   btnTestPackage.Enabled := false ;
   try
-    FLispLang.EvalStr('(testpackage)');
+    //FLispLang.EvalStr('(testpackage)');
   finally
     btnTestPackage.Enabled := true ;
   end;

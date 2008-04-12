@@ -20,7 +20,7 @@ type
     isAtom : Boolean ;
     datatype :integer ;
     entity : string ;      // or
-    lispList : TLispList ; // or
+    lispList : TLispList ;
   public
     constructor createNew(token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;virtual;
     function iDup : TLispNode ;
@@ -47,6 +47,8 @@ type
   end;
   //TLispNode = class;
   TLispList = class
+  strict private
+    function PrettyStr: String;
   private
     //fIndent : Integer  ;
     FLispLang : TLispLang ;
@@ -98,7 +100,7 @@ type
     procedure checkSizeEquals(A:Integer);overload ;
     procedure checkSizeGE(A:Integer);overload ;
     procedure checkSizeEquals(A:Array of Integer);overload ;
-    function getStr: String;
+    function GetStr: String;
   end;
   THashTable = class(TStringList)
   private
@@ -158,39 +160,42 @@ type
    property StdOut : TStrings read FStdOut write FStdOut;
    procedure RegisterPackage(I:ILispPackage);
    procedure returnlistPrint ;
+   // fixture
+   function LoadStr(ListStr: String): TLispList;
   end;
 type
-  TLispNodeString = class(TLispNode)
+  TLispNodeAtom  = class(TLispNode)
+  public
+   constructor createNew(ALispLang :TLispLang;token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;reintroduce;
+  end;
+
+  TLispNodeString = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeNull = class(TLispNode)
+  TLispNodeNull = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeInt= class(TLispNode)
+  TLispNodeInt= class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeTrue = class(TLispNode)
+  TLispNodeTrue = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeFalse = class(TLispNode)
+  TLispNodeFalse = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeList = class(TLispNode)
+  TLispNodeList = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;list : TLispList;toReturnList:boolean=false);reintroduce;
   end;
-  TLispNodeNumb = class(TLispNode)
+  TLispNodeNumb = class(TLispNodeAtom)
   public
    constructor Create (ALispLang :TLispLang;str :String;toReturnList:boolean=false);reintroduce;
-  end;
-  TLispNodeAtom  = class(TLispNode)
-  public
-   constructor create(ALispLang :TLispLang;token : string ;ll : TLispList ;dt : integer;toReturnList:boolean=false) ;virtual;
   end;
 /////////////
 procedure output(S:String);
@@ -389,7 +394,7 @@ begin
      end else
        output(')');
 end;
-function TLispList.getStr: String;
+function TLispList.PrettyStr: String;
 var
   i ,j: integer ;
   ContainList : Boolean ;
@@ -411,18 +416,43 @@ begin
         begin
           Result := Result +(#13#10);
           fIndent := fIndent + 1 ;
-        end;
-        result := result + nth(i).getStr ;
-        if nth(i).isList then
-        begin
+          if nth(i).getList <>nil then
+                result := result + nth(i).getStr
+          else
+                result := result + '<nillist>';
           fIndent := fIndent - 1 ;
-        end;
+        end else
+          result := result + nth(i).getStr;
      end;
      if not isDeepestList then begin
        Result := Result +#13#10;
        Result := Result +RepeatStr(' ',fIndent*fIndentLen)+')';
      end else
        Result := Result +')';
+end;
+function TLispList.GetStr: String;
+var
+  i ,j: integer ;
+  ContainList : Boolean ;
+  Rlt, s : String;
+begin
+     Rlt := Rlt +'(';
+     ContainList := False ;
+     for i := 0 to size-1 do
+     begin
+        if nth(i).isList then
+        begin
+          if nth(i).getList <>nil then
+                Rlt := Rlt + nth(i).getStr
+          else
+                Rlt := Rlt + '<nillist>';
+        end else if i=size-1 then
+              Rlt := Rlt + nth(i).getStr
+          else
+              Rlt := Rlt + nth(i).getStr+' ';
+     end;
+     Rlt := Rlt +')';
+     Result := rlt ;
 end;
 
 function TLispList.nth(i: integer): TLispNode;
@@ -1077,10 +1107,10 @@ end;
 
 function TLispNode.getStr: String;
 begin
-  if isatom then  
+  if isatom then
         result := entity
   else
-     result := lispList.getStr ;
+     result := lispList.GetStr ;
 end;
 
 function TLispNode.iDup: TLispNode;
@@ -1089,7 +1119,7 @@ begin
   if isAtom then
   begin
     //Result := TLispNode.create(entity,nil,datatype,true);
-    Result := TLispNodeAtom.create(FLispLang,entity,nil,datatype,true);
+    Result := TLispNodeAtom.createNew(FLispLang,entity,nil,datatype,true);
   end else
   begin
     //Result := TLispNode.create('',lispList.iDup,TT_LIST,true);
@@ -1283,7 +1313,7 @@ begin
   begin
     if (f = TT_NUMB) or (f = TT_INT) or(f = TT_TOKEN ) or (f = TT_STRING) then
     begin
-      tempNode := TLispNodeAtom.create(self,t,nil,f);
+      tempNode := TLispNodeAtom.createNew(self,t,nil,f);
       currList.append(tempNode);
     end
     else
@@ -1310,8 +1340,7 @@ begin
     output('¿®∫≈≤ª∆•≈‰');
 
   historyStack.free ;
-  //NodeList := list ;
-  // result is ===
+  NodeList := list ;
   result := list ;
 end;
 function  TLispLang.EvalFile (FileName : String):TLispNode;
@@ -1325,6 +1354,26 @@ begin
   finally
     sl.free ;
   end;       
+end;
+function  TLispLang.LoadStr (ListStr : String):TLispList ;
+var
+  MS : TStringStream ;
+var
+ t : string ;
+ F : Integer ;
+ S :TMemorystream ;
+ p : TLispParser ;
+ r : TLispNode ;
+ fs : TFileStream ;
+ sl : TStringList;
+begin
+  MS := TStringStream.Create (ListStr);
+  try
+          iLoad(Ms);
+          Result := NodeList ;
+  finally
+    Ms.Free;
+  end;
 end;
 
 function  TLispLang.EvalStr (ListStr : String):TLispNode ;
@@ -1459,24 +1508,21 @@ end;
 
 constructor TLispNodeString.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
 begin
-  inherited CreateNew(str,nil,TT_STRING,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,str,nil,TT_STRING,toReturnList);
 end;
 
 { TLispNodeNumb }
 
 constructor TLispNodeNumb.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
 begin
-  inherited CreateNew(str,nil,TT_NUMB,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,str,nil,TT_NUMB,toReturnList);
 end;
 
 { TLispNodeNull }
 
 constructor TLispNodeNull.Create(ALispLang: TLispLang;toReturnList:boolean=false);
 begin
-  inherited CreateNew('',nil,TT_NULL,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,'',nil,TT_NULL,toReturnList);
 
 end;
 
@@ -1484,42 +1530,40 @@ end;
 
 constructor TLispNodeInt.Create(ALispLang: TLispLang; str: String;toReturnList:boolean=false);
 begin
-  inherited CreateNew(str,nil,TT_INT,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,str,nil,TT_INT,toReturnList);
 end;
 
 { TLispNodeTrue }
 
 constructor TLispNodeTrue.Create(ALispLang: TLispLang;toReturnList:boolean=false);
 begin
-  inherited CreateNew('',nil,TT_TRUE,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,'',nil,TT_TRUE,toReturnList);
 end;
 
 { TLispNodeList }
 
 constructor TLispNodeList.Create(ALispLang: TLispLang; list : TLispList;toReturnList:boolean=false);
 begin
-  inherited CreateNew('',list,TT_LIST,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,'',list,TT_LIST,toReturnList);
+
 end;
 
 { TLispNodeFalse }
 
 constructor TLispNodeFalse.Create(ALispLang: TLispLang; toReturnList: boolean);
 begin
-  inherited CreateNew('',nil,TT_FALSE,toReturnList);
-  Self.FLispLang := ALispLang ;
+  inherited CreateNew(ALispLang,'',nil,TT_FALSE,toReturnList);
 
 end;
 
 { TLispNodeAtom }
 
-constructor TLispNodeAtom.create(ALispLang: TLispLang; token: string;
+
+constructor TLispNodeAtom.createNew(ALispLang: TLispLang; token: string;
   ll: TLispList; dt: integer; toReturnList: boolean);
 begin
   FLispLang := ALispLang ;
-  inherited CreateNew(token,nil,dt,toReturnList);
+  inherited CreateNew(token,ll,dt,toReturnList);
 end;
 
 end.

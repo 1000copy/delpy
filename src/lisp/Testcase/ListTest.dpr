@@ -6,12 +6,7 @@ program ListTest;
 
 uses
   TestFramework,
-{$IFDEF DUNIT_CLX}
-  QGUITestRunner,
-{$ELSE}
-  GUITestRunner,
-{$ENDIF}
-  TListTestCase in 'TListTestCase.pas';
+  GUITestRunner;
 
 {$R *.res}
 

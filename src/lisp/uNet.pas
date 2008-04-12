@@ -113,7 +113,8 @@ begin
   locallispnode := lispList.nth(3).iEvaluate ;
   l := locallispnode.getStr ;
   downloadFile(h,r,l,socket1);
-  result := TLispNode.create('',NIL,TT_TRUE,true);
+  //result := TLispNode.create('',NIL,TT_TRUE,true);
+  result := TLispNodeTrue.create(FLispLang);
 end;
 
 constructor TLispNet.create;
